@@ -54,7 +54,7 @@ if ~isempty(varargin)
     else
         sitex=1;
         sitey=1;
-    end %must adjust size.
+    end 
     overlay = imresize(overlay,[357.6,501.2]);
     cdatao = real2rgb(overlay,[255,0,0;152,152,152]./255,[0,1]);
     xo = repmat(1:size(overlay,2),size(overlay,1),1)+xpos(sitex,sitey)-2*size(overlay,1)/3;

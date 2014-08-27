@@ -9,7 +9,8 @@ for i=1:number
     connmat1(loc(i))=nan; 
 end
 [a1,a2]=ind2sub(size(connmat1),loc);
-[centrality,index]=CalcEigenCentrality(connmat,min(avals));
+% [centrality,index]=CalcEigenCentrality(connmat,min(avals));
+[centrality,index]=CalcPageRank(connmat);
 centrality = round(abs(centrality).*10000)./10000;
 [~,~,noderank] = unique(centrality,'stable');
 nodecolors = [0,0,0;flip(cbrewer('seq','Purples',numel(unique(noderank)-2)),1)];
@@ -26,6 +27,14 @@ yo = repmat([1:size(mask,1)]',1,size(mask,2));
 zo = zeros(size(mask));
 s = surface(xo,yo,zo,cdatao,'EdgeColor','none','FaceColor','texturemap','CDataMapping','direct'); axis('tight');
 
+% cvec = [0,0,0;nodecolors(2:end,:)];
+colormap([0,0,0;flip(nodecolors(2:end,:),1)]);
+c = colorbar('Location','northoutside');
+cticks = linspace(0,1,size(nodecolors,1));
+set(c,'Ticks',[0,cticks(2),cticks(end-1)],'TickLabels',[0,1,max(noderank)]);
+caxis(caxis);
+
+
 centers  = cell2mat(arrayfun(@(x) x.Centroid, regionprops(~mask,'Centroid'),'uniformoutput',0));
 [avals,rank]=sort(round(avals*10000)/10000);
 a1=a1(rank);
@@ -36,20 +45,12 @@ xposa1 = (centers(a1,1))';
 yposa1 = (centers(a1,2))';
 xposa2 = (centers(a2,1))';
 yposa2 = (centers(a2,2))';
-colors = flip(jet(numel(a1)),1);
-
+colors = jet(max(rank)-min(rank)+1);
+colors = colors(rank-min(rank)+1, :);
 %--Transparent Lines---%
 for i=1:numel(a1)
-    l = patchline([xposa1(i),xposa2(i)],[yposa1(i),yposa2(i)],'linestyle','-','edgecolor',colors(rank(i),:),'linewidth',1,'edgealpha',0.5);
+    l = patchline([xposa1(i),xposa2(i)],[yposa1(i),yposa2(i)],'linestyle','-','edgecolor',colors(i,:),'linewidth',1,'edgealpha',0.5);
 end
-
-cvec = [0,0,0;nodecolors(2:end,:)];
-colormap(cvec);
-c = colorbar('Location','northoutside');
-cticks = linspace(0,1,size(cvec,1));
-set(c,'Ticks',[0,cticks(2),cticks(end-1)],'TickLabels',[0,1,max(noderank)]);
-caxis(caxis);
-
 
 %--Solid Lines---%
 % x=[xposa1;xposa2];
@@ -75,7 +76,7 @@ a1labels =cellfun(@(x) num2str(x), num2cell(a1),'UniformOutput',false);
 text(xposa1,yposa1,a1labels,'Clipping', 'on','hittest','off','color','r');
 
 ha  = axes('visible','off');
-colormap(ha,jet(numel(rank)));
+colormap(ha,jet(max(rank)-min(rank)+1));
 c1 = colorbar('Location','eastoutside');
 ctick = 0:(1/numel(avals))/2:1;
 ctick=ctick(2:2:end-1);
