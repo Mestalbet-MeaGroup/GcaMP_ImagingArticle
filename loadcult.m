@@ -12,6 +12,8 @@ a2a=MaxCosSim(size(ic,2)+1:end,size(ic,2)+1:end);
 n2n=MaxCosSim(1:size(ic,2),1:size(ic,2));
 a2n=MaxCosSim(1:size(ic,2),size(ic,2)+1:end);
 ch = DataSet{which}.channel;
+bs = DataSet{which}.bs;
+be = DataSet{which}.be;
 assignin('base', 't', t);
 assignin('base', 'ic', ic);
 assignin('base', 'mask', mask);
@@ -21,5 +23,7 @@ assignin('base', 'MaxCosSim', MaxCosSim);
 assignin('base', 'a2a', a2a);
 assignin('base', 'n2n', n2n);
 assignin('base', 'a2n', a2n);
+assignin('base', 'bs', bs);
+assignin('base', 'be', be);
 assignin('base', 'ch', ch);
 end
