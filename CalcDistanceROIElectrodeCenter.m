@@ -1,14 +1,16 @@
-function distmat=CalcDistanceROIElectrodeCenter(MeaMap,ic,xpos,ypos,overlay,mask,pixs,x0,y0)
+function distmat=CalcDistanceROIElectrodeCenter(MeaMap,ic,xpos,ypos,overlay,tempmask,pixs,x0,y0)
 numc = size(ic,2);
 distmat = nan(numc,1);
+for ii=1:size(pixs,1);
+    tempmask(round(pixs(ii,1)),round(pixs(ii,2)))=1;
+end
 for j=1:numc
     [sitex,sitey]=find(MeaMap==ic(1,j));
     elecx = xpos(sitex,sitey);
     elecy = ypos(sitex,sitey);
     tempoverlay=false(size(overlay));
     tempoverlay(elecx,elecy)=1;
-    tempmask=false(size(mask));
-    tempmask(pixs)=1;
+    
     %     tempmask=(~mask);
     %     tempoverlay=false(size(overlay));
     %     for j=1:numc
@@ -18,7 +20,7 @@ for j=1:numc
     %         tempoverlay(elecx,elecy)=1;
     %     end
     
-%---For cases when viewfield goes beyond where there are electrodes.Centered on border electrode-%
+    %---For cases when viewfield goes beyond where there are electrodes.Centered on border electrode-%
     if ((x0+size(tempmask,1)-1)>size(tempoverlay,1))
         tempoverlay= padarray(tempoverlay,[(x0+size(tempmask,1)-1)-size(tempoverlay,1),0],0,'post');
     end
@@ -36,7 +38,7 @@ for j=1:numc
         tempoverlay= padarray(tempoverlay,[0,abs(y0)],0,'pre');
         y0 = y0+abs(y0)+1;
     end
-%-----------------------------------------------------------------------------------------------%
+    %-----------------------------------------------------------------------------------------------%
     
     tempoverlay(x0:x0+size(tempmask,1)-1,y0:y0+size(tempmask,2)-1)=...
         tempoverlay(x0:x0+size(tempmask,1)-1,y0:y0+size(tempmask,2)-1)+(tempmask);

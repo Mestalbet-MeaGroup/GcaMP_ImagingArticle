@@ -52,26 +52,38 @@ switch options
         xpos=reshape(xpos,16,16);
         ypos=reshape(ypos,16,16);
         
-        mask=imresize(mask,0.6472);
+        %         mask=imresize(mask,0.6472); % There is a problem with imresize - it deletes thin bridges.
+        %---Resize image without loosing small bridges---%
+        %         mask = imwarp(double(mask)+100,affine2d([0.6472, 0, 0;0, 0.6472,0; 0,0,1]),'Interp','linear');
+        %         mask(mask==101)=1;
+        %         mask(mask<100)=1;
+        %         mask(mask~=1)=0;
+        % %-------------------------------------------------%
         [sitex,sitey]=find(MeaMap==pos);
         centframe = [round(size(mask,1)/2),round(size(mask,2)/2)];
         x0 = xpos(sitex,sitey)-centframe(1);
         y0 = ypos(sitex,sitey)-centframe(2); %convert center of frame location to corner
-        
-        ROI = regionprops(~mask,'PixelIdxList');
+      
+%         ROI = regionprops(~mask,'PixelList');
         if m==size(ic,2)
             numAstros=n;
         else
             numAstros=m;
         end
         
-        if numel(ROI)~=numAstros
+%         if numel(ROI)~=numAstros
+%             error('Wrong number of ROIs detected.');
+%         end
+        distmat=nan(size(mat));
+        labeled = bwlabel(~mask);
+        if max(labeled(:))~=numAstros
             error('Wrong number of ROIs detected.');
         end
-        
-        distmat=nan(size(mat));
-        parfor i=1:numel(ROI)
-            temp=CalcDistanceROIElectrodeCenter(MeaMap,ic,xpos,ypos,overlay,mask,ROI(i).PixelIdxList,x0,y0);
+        T = maketform('affine',[0.6472, 0, 0;0, 0.6472,0; 0,0,1]); %The transform to match scales of mea layout and mask. 
+        for i=1:max(labeled(:));
+            [u,v] = find(labeled==i);
+            [x,y] = tformfwd(T,u,v);
+            temp=CalcDistanceROIElectrodeCenter(MeaMap,ic,xpos,ypos,overlay,false(size(mask)),[x,y],x0,y0);
             distmat(:,i)=temp;
         end
         distance=distmat(:);
