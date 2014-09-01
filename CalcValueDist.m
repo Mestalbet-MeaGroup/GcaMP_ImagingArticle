@@ -79,7 +79,7 @@ switch options
         if max(labeled(:))~=numAstros
             error('Wrong number of ROIs detected.');
         end
-        T = maketform('affine',[0.6472, 0, 0;0, 0.6472,0; 0,0,1]); %The transform to match scales of mea layout and mask. 
+        T = maketform('affine',[0.6472, 0, 0;0, 0.6472,0; 0,0,1]); %The transform to match scales of the mask to real world. 
         for i=1:max(labeled(:));
             [u,v] = find(labeled==i);
             [x,y] = tformfwd(T,u,v);
