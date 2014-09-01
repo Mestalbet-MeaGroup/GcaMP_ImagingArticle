@@ -32,7 +32,7 @@ switch options
         MeaImage = [];
         MeaMap=[];
         load('MeaMapPlot.mat','MeaImage','MeaMap');
-        %         MeaMap = rot90(MeaMap,-1);
+        MeaMap = rot90(MeaMap,-1);
         overlay = otsu(imresize(MeaImage,1.0441),45);
         overlay(overlay>1)=0;
         overlay=bwareaopen(overlay, 500);
@@ -52,34 +52,25 @@ switch options
         xpos=reshape(xpos,16,16);
         ypos=reshape(ypos,16,16);
         
-        %         mask=imresize(mask,0.6472); % There is a problem with imresize - it deletes thin bridges.
-        %---Resize image without loosing small bridges---%
-        %         mask = imwarp(double(mask)+100,affine2d([0.6472, 0, 0;0, 0.6472,0; 0,0,1]),'Interp','linear');
-        %         mask(mask==101)=1;
-        %         mask(mask<100)=1;
-        %         mask(mask~=1)=0;
-        % %-------------------------------------------------%
         [sitex,sitey]=find(MeaMap==pos);
         centframe = [round(size(mask,1)/2),round(size(mask,2)/2)];
         x0 = xpos(sitex,sitey)-centframe(1);
         y0 = ypos(sitex,sitey)-centframe(2); %convert center of frame location to corner
-      
-%         ROI = regionprops(~mask,'PixelList');
+        
         if m==size(ic,2)
             numAstros=n;
         else
             numAstros=m;
         end
-        
-%         if numel(ROI)~=numAstros
-%             error('Wrong number of ROIs detected.');
-%         end
+       
         distmat=nan(size(mat));
         labeled = bwlabel(~mask);
+       
         if max(labeled(:))~=numAstros
             error('Wrong number of ROIs detected.');
         end
-        T = maketform('affine',[0.6472, 0, 0;0, 0.6472,0; 0,0,1]); %The transform to match scales of the mask to real world. 
+        
+        T = maketform('affine',[0.6472, 0, 0;0, 0.6472,0; 0,0,1]); %The transform to match scales of the mask to real world.
         for i=1:max(labeled(:));
             [u,v] = find(labeled==i);
             [x,y] = tformfwd(T,u,v);
@@ -92,14 +83,19 @@ switch options
         if m~=n
             error('You chose N2N but the matrix is not symmetric, not the same number of neuros');
         end
-        MeaImage=[];
+        MeaImage = [];
         MeaMap=[];
         load('MeaMapPlot.mat','MeaImage','MeaMap');
-        %         MeaMap = rot90(MeaMap,-1);  %check to make sure MeaMap doesn't need to rotated
-        mask = otsu(MeaImage,45);
-        mask(mask>1)=0;
-        
-        centers = imfindcircles(mask,[12,20],'ObjectPolarity','bright','method','TwoStage','Sensitivity',0.90);
+        MeaMap = rot90(MeaMap,-1);
+        overlay = otsu(imresize(MeaImage,1.0441),45);
+        overlay(overlay>1)=0;
+        overlay=bwareaopen(overlay, 500);
+        overlay = (overlay>=1);
+        %--Erase manually two spots---%
+        overlay(1750:1830,2705:2770)=0;
+        overlay(1600:1720,2745:2830)=0;
+        %-----------------------------%
+        centers = imfindcircles(overlay,[12,35],'ObjectPolarity','bright','method','TwoStage','Sensitivity',0.70);
         [xpos,a]=sort(centers(:,2));
         ypos=centers(a,1);
         
