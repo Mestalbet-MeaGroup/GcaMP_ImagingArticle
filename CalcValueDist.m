@@ -24,7 +24,7 @@ switch options
         mat(isnan(mat))=-1;
         mat(mat==0)=nan;
         mat(mat==-1)=0;
-        distance = distmat(:);
+        distance = distmat(:).*0.6472;
         distance(isnan(distance))=[];
         score = mat(:);
         score(isnan(score))=[];
@@ -110,14 +110,15 @@ switch options
         combs=VChooseK(1:n,2);
         e1=ic(1,combs(:,1));
         e2=ic(1,combs(:,2));
-        distance=zeros(numel(e1));
-        score=zeros(numel(e1));
+        distance=zeros(numel(e1),1);
+        score=zeros(numel(e1),1);
         for i=1:numel(e1)
             [x1,y1] = find(MeaMap==e1(i));
             [x2,y2] = find(MeaMap==e2(i));
             distance(i) = sqrt((xpos(x1,y1)-xpos(x2,y2))^2+ (ypos(x1,y1)-ypos(x2,y2))^2);
             score(i)=mat(combs(i,1),combs(i,2));
         end
+        
 end
 
 end

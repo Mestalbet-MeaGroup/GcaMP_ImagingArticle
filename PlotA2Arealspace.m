@@ -32,6 +32,7 @@ colormap([0,0,0;flip(nodecolors(2:end,:),1)]);
 c = colorbar('Location','northoutside');
 cticks = linspace(0,1,size(nodecolors,1));
 set(c,'Ticks',[0,cticks(2),cticks(end-1)],'TickLabels',[0,1,max(noderank)]);
+ylabel(c,'Page Rank')
 caxis(caxis);
 
 
@@ -81,4 +82,5 @@ c1 = colorbar('Location','eastoutside');
 ctick = 0:(1/numel(avals))/2:1;
 ctick=ctick(2:2:end-1);
 set(c1,'Ticks',[ctick(1),ctick(end)],'TickLabels',[avals(1),avals(end)]);
+ylabel(c1,'Correlation')
 end

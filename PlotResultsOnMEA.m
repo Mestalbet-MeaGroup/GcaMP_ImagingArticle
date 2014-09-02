@@ -16,7 +16,7 @@ function PlotResultsOnMEA(e1,e2,value,varargin)
 % PlotResultsOnMEA([],[],[],mask,ch,a1,a_e2,aval);
 % To Plot both A2N and N2N:
 % PlotResultsOnMEA(e1,e2,eval,mask,ch,a1,a_e2,aval);
-f = figure;
+% f = figure;
 
 %---Load Mea Image Data and Map---%
 load('MeaMapPlot.mat','MeaImage','MeaMap');
@@ -106,6 +106,7 @@ if size(varargin,2)>2
         sources(loc)=nan; %in case two connections have the same source (non-unique elements in a1)
         al = line([x1,xpos(ax2,ay2)],[y1,ypos(ax2,ay2)],'color',score,'linewidth',0.5);
         uistack(al,'top');
+%         display(i);
     end
     
     ha  = axes('visible','off');
