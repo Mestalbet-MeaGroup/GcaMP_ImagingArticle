@@ -14,6 +14,7 @@ a2n=MaxCosSim(1:size(ic,2),size(ic,2)+1:end);
 ch = DataSet{which}.channel;
 bs = DataSet{which}.bs;
 be = DataSet{which}.be;
+fr = DataSet{which}.FR;
 assignin('base', 't', t);
 assignin('base', 'ic', ic);
 assignin('base', 'mask', mask);
@@ -26,4 +27,5 @@ assignin('base', 'a2n', a2n);
 assignin('base', 'bs', bs);
 assignin('base', 'be', be);
 assignin('base', 'ch', ch);
+assignin('base', 'fr', fr);
 end

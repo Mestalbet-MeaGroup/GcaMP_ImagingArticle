@@ -71,7 +71,7 @@ switch options
         end
         
         T = maketform('affine',[0.6472, 0, 0;0, 0.6472,0; 0,0,1]); %The transform to match scales of the mask to real world.
-        for i=1:max(labeled(:));
+        parfor i=1:max(labeled(:));
             [u,v] = find(labeled==i);
             [x,y] = tformfwd(T,u,v);
             temp=CalcDistanceROIElectrodeCenter(MeaMap,ic,xpos,ypos,overlay,false(size(mask)),[x,y],x0,y0);
@@ -112,7 +112,7 @@ switch options
         e2=ic(1,combs(:,2));
         distance=zeros(numel(e1),1);
         score=zeros(numel(e1),1);
-        for i=1:numel(e1)
+        parfor i=1:numel(e1)
             [x1,y1] = find(MeaMap==e1(i));
             [x2,y2] = find(MeaMap==e2(i));
             distance(i) = sqrt((xpos(x1,y1)-xpos(x2,y2))^2+ (ypos(x1,y1)-ypos(x2,y2))^2);

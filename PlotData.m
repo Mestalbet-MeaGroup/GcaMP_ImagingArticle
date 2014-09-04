@@ -22,14 +22,16 @@ for i=1:size(DataSet,1)
 end
 
 %---Figure 2: Projection of Correlation on Realspace---%
-[e1,e2,eval,a1,a_e2,aval,ch,mask]=ParseConnectionValues(6,50);
+[e1,e2,eval,a1,a_e2,aval,ch,mask]=ParseConnectionValues(6,500);
 figure;
 PlotResultsOnMEA([],[],[],mask,ch,a1,a_e2,aval);
 figure;
+loadcult(6);
 PlotA2Arealspace(mask,a2a,1000);
 
 
 %---Figure 3: Joint PSTH---%
+figure;
 subplot = @(m,n,p) subtightplot (m, n, p, [0.05 0.05], [0.05 0.05], [0.05 0.05]);
 subplot(2,4,1:2);
 i=6;
@@ -68,7 +70,7 @@ end
 % [n2nD,n2nV] = CalcValueDist(n2n,ic,[],[],'n2n');
 % [a2aD,a2aV] = CalcValueDist(a2a,[],mask,[],'a2a');
 % [a2nD,a2nV] = CalcValueDist(a2n,ic,mask,ch,'a2n');
-load('DistData.mat');
+load('DistData.mat'); %continue here
 subplot = @(m,n,p) subtightplot (m, n, p, [0.05 0.05], [0.05 0.05], [0.05 0.05]);
 subplot(1,3,1);
 scatter(n2nD,n2nV);
@@ -87,3 +89,27 @@ xlabel('Distance');
 ylabel('Correlation');
 
 %---Figure 5: Delay vs. Distance---%
+figure;
+[n2nL,a2aL,a2nL,lagmat,ic]=CalcLagsAtMaxCorr(6);
+[n2nD,n2nV] = CalcValueDist(n2nL,ic,[],[],'n2n');
+[a2aD,a2aV] = CalcValueDist(a2aL,[],mask,[],'a2a');
+[a2nD,a2nV] = CalcValueDist(a2nL,ic,mask,ch,'a2n');
+subplot = @(m,n,p) subtightplot (m, n, p, [0.05 0.05], [0.05 0.05], [0.05 0.05]);
+subplot(1,3,1);
+scatter(n2nD,n2nV);
+title('Neuron to Neuron');
+xlabel('Distance');
+ylabel('Lag at Max Corr');
+subplot(1,3,2);
+scatter(a2aD,a2aV);
+title('Astrocyte to Astrocyte');
+xlabel('Distance');
+ylabel('Lag at Max Corr');
+subplot(1,3,3)
+scatter(a2nD,a2nV);
+title('Astrocyte to Neuron');
+xlabel('Distance');
+ylabel('Lag at Max Corr');
+
+
+%---Figure 6: Heatmaps---%

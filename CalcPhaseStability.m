@@ -31,14 +31,15 @@ ps=zeros(numel(list),numel(list));
 for i=1:numel(set1)
     diffs = FindMinDifferences(t(vec==set1(i)),t(vec==set2(i)));
 %     [diffs,~,~] = deleteoutliers(diffs, 0.05);
-    maxval = abs(diffs-mean(diffs));
-    maxval=max(maxval);
-    if maxval > 0
-        ps(temp(i,1),temp(i,2))= 1 - std(diffs)/maxval;
-    else
-        ps(temp(i,1),temp(i,2))= 1 - std(diffs);
-    end
-    %     ps(temp(i,1),temp(i,2))= std(diffs)/mean(diffs);
+%     maxval = abs(diffs-mean(diffs));
+%     maxval=max(maxval);
+%     if maxval > 0
+%         ps(temp(i,1),temp(i,2))= 1 - std(diffs)/maxval;
+%     else
+%         ps(temp(i,1),temp(i,2))= 1 - std(diffs);
+%     end
+%     ps(temp(i,1),temp(i,2))= std(diffs)/mean(diffs);
+    ps(temp(i,1),temp(i,2))=std(diffs);
 end
 ps=ps+ps'-eye(size(ps));
 end

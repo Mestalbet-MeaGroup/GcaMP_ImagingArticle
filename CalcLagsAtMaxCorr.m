@@ -4,18 +4,18 @@ CS  = matfile('F:\CosSimTemp.mat');
 db = matfile('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2.mat');
 
 %---fs---%
-fs = db.DataSet(1,i);
-fs = fs{i}.fs;
+fs = db.DataSet(i,1);
+fs = fs{1}.fs;
 %--------%
 
 %---cs---%
-csi = CS.CosSim(i,i);
+csi = CS.CosSim(1,i);
 csi = csi{1};
 %--------%
 
 %---ic---%
-ic = db.DataSet(i,i);
-ic = ic{i}.ic;
+ic = db.DataSet(i,1);
+ic = ic{1}.ic;
 %--------%
 clear CS; clear db;
 %---Lag Mat---%
