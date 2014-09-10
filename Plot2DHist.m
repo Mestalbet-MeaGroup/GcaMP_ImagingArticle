@@ -6,14 +6,14 @@ function s = Plot2DHist(x,y,binx,biny,xlimit,ylimit,factor,bins)
 
 %----Calculate Weighted Histogram---%
 hist=zeros(binx,biny);
-[~,idx]=histc(x,[0,bins{1}]);
+[~,idx]=histc(x,bins{1});
 [~,idy]=histc(y,bins{2});
 for i=1:size(idx,1)
     hist(idx(i)+1,idy(i)+1)=hist(idx(i)+1,idy(i)+1)+factor(i,idx(i)+1);
 end
 
 %---Calculate Raw Histogram---%
-hist =hist3([x,y],[binx,biny]);
+% [hist,bins]  = hist3([x,y],[binx,biny]);
 %---Plot 2D Histogram---%
 xo = repmat(bins{1}',1,size(hist,2));
 yo = repmat(bins{2},size(hist,1),1);
@@ -29,7 +29,7 @@ s = surface(xo,yo,zo,cdatao,'EdgeColor','none','FaceColor','texturemap','CDataMa
 axis tight;
 % shading interp;
 colormap(colors);
-colorbar;
+colorbar; % max colorbar will be number of unique values)
 
 %---Center of Mass---%
 [rc,cc] = ndgrid(1:size(hist,1),1:size(hist,2));

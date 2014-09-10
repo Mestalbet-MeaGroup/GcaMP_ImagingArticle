@@ -7,14 +7,16 @@ load('CorrDist.mat');
 figure;
 xlimit = 500;
 ylimit = 1;
-optM=[50,10];
+% optM=[50,10];
 for i=1:9
     subplot(3,3,i)
-%     optM = a2aB{i};
+    optM = a2aB{i};
 %     a2a = [a2ad{i}(~isnan(a2as{i})),a2as{i}(~isnan(a2as{i}))]';
 %     a2a = a2a(:,a2a(2,:)~=0);
     a2a = [a2ad{i},a2as{i}]';
-    Plot2DHist(a2a(1,:)',a2a(2,:)',optM(1),optM(2),xlimit,ylimit);
+    [~,bins]  = hist3([a2a(1,:)',a2a(2,:)'],'Edges',{linspace(0,max(a2a(1,:)),optM(1)),linspace(0,max(a2a(2,:)),optM(2))});
+    factor = Calc2DhistNormalization([],bins{1},[],~DataSet{i}.mask,'a2a');
+    Plot2DHist(a2a(1,:)',a2a(2,:)',optM(1),optM(2),xlimit,ylimit,factor,bins);
     title(['A2A: Culture: ', num2str(DataSet{i}.culture),' Channel: ',num2str(DataSet{i}.channel)]);
 end
 
@@ -22,22 +24,23 @@ figure;
 xlimit = 4000;
 for i=1:9
     subplot(3,3,i)
-%     optM = a2nB{i};
-    a2n = [a2nd{i}(~isnan(a2ns{i})),a2ns{i}(~isnan(a2ns{i}))]';
-    a2n = a2n(:,a2n(2,:)~=0);
-    Plot2DHist(a2n(1,:)',a2n(2,:)',optM(1),optM(2),xlimit,ylimit);
+    optM = a2nB{i};
+    a2n = [a2nd{i},a2ns{i}]';
+    [~,bins]  = hist3([a2n(1,:)',a2n(2,:)'],'Edges',{linspace(0,max(a2n(1,:)),optM(1)),linspace(0,max(a2n(2,:)),optM(2))});
+    factor = Calc2DhistNormalization(DataSet{i}.channel,bins{1},MeaMap,size(a2n,2),'a2n');
+    Plot2DHist(a2n(1,:)',a2n(2,:)',optM(1),optM(2),xlimit,ylimit,factor,bins);
     title(['A2N: Culture: ', num2str(DataSet{i}.culture),' Channel: ',num2str(DataSet{i}.channel)]);
 end
 
 figure;
 for i=1:9
     subplot(3,3,i)
-%     optM = n2nB{1};
+    optM = n2nB{1};
 %     n2n = [n2nd{i}(~isnan(n2ns{i})),n2ns{i}(~isnan(n2ns{i}))]';
 %     n2n = n2n(:,n2n(2,:)~=0);
     n2n = [n2nd{i},n2ns{i}]';
-    [~,bins]  = hist3([n2n(1,:)',n2n(2,:)'],[optM(1),optM(2)]);
-    factor = Calc2DhistNormalization(DataSet{i}.ic(1,:),bins{1},MeaMap);
+    [~,bins]  = hist3([n2n(1,:)',n2n(2,:)'],'Edges',{linspace(0,max(n2n(1,:)),optM(1)),linspace(0,max(n2n(2,:)),optM(2))});
+    factor = Calc2DhistNormalization(DataSet{i}.ic(1,:),bins{1},MeaMap,[],'n2n');
     Plot2DHist(n2n(1,:)',n2n(2,:)',optM(1),optM(2),xlimit,ylimit,factor,bins);
     title(['N2N: Culture: ', num2str(DataSet{i}.culture),' Channel: ',num2str(DataSet{i}.channel)]);
 end
