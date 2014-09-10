@@ -1,4 +1,4 @@
-function d = regiondist(img)
+function d = regiondist(img);	
 label = bwlabel(img);
 n = max(label(:));
 d = zeros(n);

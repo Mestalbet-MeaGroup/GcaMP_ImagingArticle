@@ -2,7 +2,7 @@ function PlotResultsOnMEA(e1,e2,value,varargin)
 % Function which accepts a series of electrode sources and targets, and a
 % value (same number of sources, targets and values) then plots a line
 % connecting source to target, with a color determined by value. Requires
-% the MEA map and MEA image mosaic files in MeaMapPlot.Mat. 
+% the MEA map and MEA image mosaic files in MeaMapPlot.Mat.
 % Optional Input:
 % 1\ mask of ROIs (520x692)
 % 2\ Viewfield location (electrod upon which viewfield is centered)
@@ -11,7 +11,7 @@ function PlotResultsOnMEA(e1,e2,value,varargin)
 % 5\ Magnitude of "connection" between astrocytes and electrodes
 % Examples:
 % To plot N2N (neuron to neuron):
-% PlotResultsOnMEA(e1,e2,eval); where e1 is the source electrodes, e2 the targets and eval the value of the connection metric between them. 
+% PlotResultsOnMEA(e1,e2,eval); where e1 is the source electrodes, e2 the targets and eval the value of the connection metric between them.
 % To PlotA2N:
 % PlotResultsOnMEA([],[],[],mask,ch,a1,a_e2,aval);
 % To Plot both A2N and N2N:
@@ -54,7 +54,7 @@ if ~isempty(varargin)
     else
         sitex=1;
         sitey=1;
-    end 
+    end
     overlay = imresize(overlay,[357.6,501.2]);
     cdatao = real2rgb(overlay,[255,0,0;152,152,152]./255,[0,1]);
     xo = repmat(1:size(overlay,2),size(overlay,1),1)+xpos(sitex,sitey)-2*size(overlay,1)/3;
@@ -86,7 +86,7 @@ if size(varargin,2)>2
         sources = a1;
     end
     sources=sources(rank);
-    colors = flip(jet(numel(sources)),1);    
+    colors = flip(jet(numel(sources)),1);
     for i=1:numel(e1)
         [x1,y1] = find(MeaMap==e1(i));
         [x2,y2] = find(MeaMap==e2(i));
@@ -106,15 +106,19 @@ if size(varargin,2)>2
         sources(loc)=nan; %in case two connections have the same source (non-unique elements in a1)
         al = line([x1,xpos(ax2,ay2)],[y1,ypos(ax2,ay2)],'color',score,'linewidth',0.5);
         uistack(al,'top');
-%         display(i);
+        %         display(i);
     end
-    
+    %--Colorbar---%
     ha  = axes('visible','off');
     colormap(ha,jet(numel(allvals)));
     c = colorbar;
     ctick = 0:(1/numel(allvals))/2:1;
     ctick=ctick(2:2:end-1);
-    set(c,'Ticks',ctick,'TickLabels',allvals);
+    if numel(ctick)>100
+        set(c,'Ticks',ctick(1:10:end),'TickLabels',allvals(1:10:end));
+    else
+        set(c,'Ticks',ctick(1:2:end),'TickLabels',allvals(1:2:end));
+    end
     caxis(caxis);
 else
     %---Find Just Electrodes and Plot---%

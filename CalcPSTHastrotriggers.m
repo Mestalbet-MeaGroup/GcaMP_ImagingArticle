@@ -10,7 +10,9 @@ temp  = mpsth(t(ic(3,1):ic(4,1))./12000,time(floor(end/2)),'tb',1,'fr',0,'pre',p
 PairWiseLags = temp(:,1);
 
 % Detect amplitude rises
-[~,StartAmpRise,~]=CalcPeakStartEnd(traces); % StartAmpRise = peak, just for testing. normally: [StartAmpRise,~,~]=CalcPeakStartEnd(traces);
+% [~,StartAmpRise,~]=CalcPeakStartEnd(traces); %Peaks
+[StartAmpRise,~,~]=CalcPeakStartEnd(traces); %Peak rises
+
 combs = allcomb(1:size(traces,2),1:size(ic,2));
 i = combs(:,2);
 j = combs(:,1);

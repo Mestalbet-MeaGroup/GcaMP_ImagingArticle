@@ -7,16 +7,16 @@ lim=floor(maxlag/2)+1;
 CosSimNeg=zeros(size(fr,2)+size(traces,2),size(fr,2)+size(traces,2),lim);
 % CosSimPos=CosSimNeg;
 
-parfor j=1:lim
+for j=1:lim
         ifr = (lim+1-j):size(fr,1);
         itrace = 1:(size(traces,1)-lim+j);
         r = [fr(ifr,:),traces(itrace,:)]';
         r=r-repmat(mean(r,2),1,size(r,2));
-        norm_r = sqrt(sum(abs(r).^2,2));
+        norm_r = sqrt(nansum(abs(r).^2,2));
         r= r./repmat(norm_r,1,size(r,2));
         tr = transpose(r);    
         CosSimNeg(:,:,j) = (r*tr);
-       
+
         r = [fr(itrace,:),traces(ifr,:)]';
         r=r-repmat(mean(r,2),1,size(r,2));
         norm_r = sqrt(sum(abs(r).^2,2));
