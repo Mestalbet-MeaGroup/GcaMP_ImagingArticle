@@ -13,8 +13,10 @@ switch which
                 factor(j,k) = NormalizeDistanceCounts(DistMat,MeaMap,ic(j),bins(k),bins(k+1));
             end
         end
-        factor(isinf(factor))=0;
-%         factor = factor./sum(factor,2);
+        %         factor(isinf(factor))=1;
+        %         factor = factor./repmat(sum(factor,2),1,nnB);
+        factor = factor./repmat(sum(factor,1),size(factor,1),1);
+        factor(isnan(factor))=0;
         combs = VChooseK(1:numel(ic),2);
         factor = factor(combs(:,1),:);
     case 'a2n'
@@ -23,16 +25,19 @@ switch which
         for k=1:nnB(1)-1
             factor(k) = NormalizeDistanceCounts(DistMat,MeaMap,ic,bins(k),bins(k+1));
         end
+        factor = factor./repmat(sum(factor,1),size(factor,1),1);
+        factor(isnan(factor))=0;
         factor = repmat(factor,mask,1);
     case 'a2a'
         distmat = triu(regiondist(mask),1);
         factor=zeros(size(distmat,1),nnB(1));
         for i=1:size(distmat,1)
-            for k=i:nnB-1
-                factor(i,k) =  1/sum((distmat(i,:)>=bins(k))&(distmat(i,:)<bins(k+1)));
+            for k=1:nnB-1
+                factor(i,k) =  sum((distmat(i,:)>=bins(k))&(distmat(i,:)<bins(k+1)));
             end
         end
-        factor(isinf(factor))=0;
+        factor = factor./repmat(sum(factor,1),size(factor,1),1);
+        factor(isnan(factor))=0;
         combs = VChooseK(1:size(distmat,1),2);
         factor = factor(combs(:,1),:);
     otherwise

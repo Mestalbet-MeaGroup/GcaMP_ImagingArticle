@@ -9,6 +9,6 @@ function factor = NormalizeDistanceCounts(DistMat,MeaMap,elec,bins,bine);
 [x1,y1] = find(MeaMap==elec);
 eidx = sub2ind(size(MeaMap),x1,y1);
 dists = DistMat(eidx,:);
-% factor =sum((dists>=bins)&(dists<bine)); %or the inverse, not sure.
-factor =1/sum((dists>=bins)&(dists<bine)); %or the inverse, not sure.
+factor =sum((dists>=bins)&(dists<=bine)); %or the inverse, not sure.
+% factor =1/sum((dists>=bins)&(dists<bine)); %or the inverse, not sure.
 end

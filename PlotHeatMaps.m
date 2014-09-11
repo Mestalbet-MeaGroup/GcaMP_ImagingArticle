@@ -7,14 +7,14 @@ load('CorrDist.mat');
 figure;
 xlimit = 500;
 ylimit = 1;
-% optM=[50,10];
+optM=[10,10];
 for i=1:9
     subplot(3,3,i)
-    optM = a2aB{i};
+%     optM = a2aB{i};
 %     a2a = [a2ad{i}(~isnan(a2as{i})),a2as{i}(~isnan(a2as{i}))]';
 %     a2a = a2a(:,a2a(2,:)~=0);
     a2a = [a2ad{i},a2as{i}]';
-    [~,bins]  = hist3([a2a(1,:)',a2a(2,:)'],'Edges',{linspace(0,max(a2a(1,:)),optM(1)),linspace(0,max(a2a(2,:)),optM(2))});
+    [~,bins]  = hist3([a2a(1,:)',a2a(2,:)'],'Edges',{linspace(min(a2a(1,:)),max(a2a(1,:)),optM(1)),linspace(0,max(a2a(2,:)),optM(2))});
     factor = Calc2DhistNormalization([],bins{1},[],~DataSet{i}.mask,'a2a');
     Plot2DHist(a2a(1,:)',a2a(2,:)',optM(1),optM(2),xlimit,ylimit,factor,bins);
     title(['A2A: Culture: ', num2str(DataSet{i}.culture),' Channel: ',num2str(DataSet{i}.channel)]);
@@ -22,24 +22,26 @@ end
 
 figure;
 xlimit = 4000;
+optM=[10,35];
 for i=1:9
     subplot(3,3,i)
-    optM = a2nB{i};
+%     optM = a2nB{i};
     a2n = [a2nd{i},a2ns{i}]';
-    [~,bins]  = hist3([a2n(1,:)',a2n(2,:)'],'Edges',{linspace(0,max(a2n(1,:)),optM(1)),linspace(0,max(a2n(2,:)),optM(2))});
+    [~,bins]  = hist3([a2n(1,:)',a2n(2,:)'],'Edges',{linspace(min(a2n(1,:)),max(a2n(1,:)),optM(1)),linspace(0,max(a2n(2,:)),optM(2))});
     factor = Calc2DhistNormalization(DataSet{i}.channel,bins{1},MeaMap,size(a2n,2),'a2n');
     Plot2DHist(a2n(1,:)',a2n(2,:)',optM(1),optM(2),xlimit,ylimit,factor,bins);
     title(['A2N: Culture: ', num2str(DataSet{i}.culture),' Channel: ',num2str(DataSet{i}.channel)]);
 end
 
 figure;
+optM=[100,10];
 for i=1:9
     subplot(3,3,i)
-    optM = n2nB{1};
+%     optM = n2nB{1};
 %     n2n = [n2nd{i}(~isnan(n2ns{i})),n2ns{i}(~isnan(n2ns{i}))]';
 %     n2n = n2n(:,n2n(2,:)~=0);
     n2n = [n2nd{i},n2ns{i}]';
-    [~,bins]  = hist3([n2n(1,:)',n2n(2,:)'],'Edges',{linspace(0,max(n2n(1,:)),optM(1)),linspace(0,max(n2n(2,:)),optM(2))});
+    [~,bins]  = hist3([n2n(1,:)',n2n(2,:)'],'Edges',{linspace(min(n2n(1,:)),max(n2n(1,:)),optM(1)),linspace(min(n2n(2,:)),max(n2n(2,:)),optM(2))});
     factor = Calc2DhistNormalization(DataSet{i}.ic(1,:),bins{1},MeaMap,[],'n2n');
     Plot2DHist(n2n(1,:)',n2n(2,:)',optM(1),optM(2),xlimit,ylimit,factor,bins);
     title(['N2N: Culture: ', num2str(DataSet{i}.culture),' Channel: ',num2str(DataSet{i}.channel)]);
@@ -50,47 +52,47 @@ clear_all_but('DataSet');
 %---Lag versus Distance---%
 clear_all_but('DataSet','subplot');
 load('LagDist.mat');
+load('MeaMapPlot.mat','MeaMap');
 
 %--A2A--%
 figure;
-load('LagDist.mat','a2aB','a2aL','a2ad');
-xlimit = 500;
-ylimit = [-500,500];
-optM=[40,8];
+xlimit = 600;
+ylimit = 500;
+optM=[10,10];
 for i=1:9
     subplot(3,3,i)
     %     optM = a2aB{i};
-    a2a = [a2ad{i}(~isnan(a2aL{i})),a2aL{i}(~isnan(a2aL{i}))]';
-    Plot2DHist(a2a(1,:)',a2a(2,:)',optM(1),optM(2),xlimit,ylimit);
+    a2a = [a2ad{i},abs(a2aL{i})]';
+    [~,bins]  = hist3([a2a(1,:)',a2a(2,:)'],'Edges',{linspace(min(a2a(1,:)),max(a2a(1,:)),optM(1)),linspace(0,max(a2a(2,:)),optM(2))});
+    factor = Calc2DhistNormalization([],bins{1},[],~DataSet{i}.mask,'a2a');
+    Plot2DHist(a2a(1,:)',a2a(2,:)',optM(1),optM(2),xlimit,ylimit,factor,bins);
     title(['A2A: Culture: ', num2str(DataSet{i}.culture),' Channel: ',num2str(DataSet{i}.channel)]);
 end
-clear_all_but('DataSet','xlimit','ylimit','subplot');
 
 %--A2N--%
 figure;
 xlimit = 4000;
-load('LagDist.mat','a2nB','a2nL','a2nd','subplot');
-optM(1)=20;
-optM(2)=10;
+optM=[10,110];
 for i=1:9
     subplot(3,3,i)
     %     optM = a2nB{i};
-    a2n = [a2nd{i}(~isnan(a2nL{i})),a2nL{i}(~isnan(a2nL{i}))]';
-    Plot2DHist(a2n(1,:)',a2n(2,:)',optM(1),optM(2),xlimit,ylimit);
+    a2n = [a2nd{i},abs(a2nL{i})]';
+    [~,bins]  = hist3([a2n(1,:)',a2n(2,:)'],'Edges',{linspace(min(a2n(1,:)),max(a2n(1,:)),optM(1)),linspace(min(a2n(2,:)),max(a2n(2,:)),optM(2))});
+    factor = Calc2DhistNormalization(DataSet{i}.channel,bins{1},MeaMap,size(a2n,2),'a2n');
+    Plot2DHist(a2n(1,:)',a2n(2,:)',optM(1),optM(2),xlimit,ylimit,factor,bins);
     title(['A2N: Culture: ', num2str(DataSet{i}.culture),' Channel: ',num2str(DataSet{i}.channel)]);
 end
-clear_all_but('DataSet','xlimit','ylimit','subplot');
 
 %--N2N--%
 figure;
-load('LagDist.mat','n2nB','n2nL','n2nd');
-optM(1)=50;
-optM(2)=20;
+optM=[100,100];
 for i=1:9
     subplot(3,3,i)
     %     optM = n2nB{1};
-    n2n = [n2nd{i}(~isnan(n2nL{i})),n2nL{i}(~isnan(n2nL{i}))]';
-    Plot2DHist(n2n(1,:)',n2n(2,:)',round(optM(1)/3),optM(2)*2,xlimit,ylimit);
+    n2n = [n2nd{i},abs(n2nL{i})]';
+    [~,bins]  = hist3([n2n(1,:)',n2n(2,:)'],'Edges',{linspace(min(n2n(1,:)),max(n2n(1,:)),optM(1)),linspace(min(n2n(2,:)),max(n2n(2,:)),optM(2))});
+    factor = Calc2DhistNormalization(DataSet{i}.ic(1,:),bins{1},MeaMap,[],'n2n');
+    Plot2DHist(n2n(1,:)',n2n(2,:)',optM(1),optM(2),xlimit,ylimit,factor,bins);
     title(['N2N: Culture: ', num2str(DataSet{i}.culture),' Channel: ',num2str(DataSet{i}.channel)]);
 end
 
