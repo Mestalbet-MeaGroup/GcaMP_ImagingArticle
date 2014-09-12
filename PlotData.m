@@ -124,3 +124,20 @@ title('Astrocyte to Neuron');
 xlabel('Distance');
 ylabel('Delays at Max Corr');
 
+%%
+% Plot Distributions of A2A vs. A2N vs. N2N
+
+clear all;
+i=9;
+loadcult(i);
+a2n=a2n(:);
+nn = tril(nan(size(n2n)),1)+triu(n2n,1);
+n2n = nn(:);
+n2n(isnan(n2n))=[];
+aa = tril(nan(size(a2a)),1)+triu(a2a,1);
+a2a = aa(:);
+a2a(isnan(a2a))=[];
+clear_all_but('a2a','a2n','n2n');
+
+% continue here. 
+

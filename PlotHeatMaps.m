@@ -90,7 +90,7 @@ for i=1:9
     subplot(3,3,i)
     %     optM = n2nB{1};
     n2n = [n2nd{i},abs(n2nL{i})]';
-    [~,bins]  = hist3([n2n(1,:)',n2n(2,:)'],'Edges',{linspace(min(n2n(1,:)),max(n2n(1,:)),optM(1)),linspace(min(n2n(2,:)),max(n2n(2,:)),optM(2))});
+    [~,bins]  = hist3([n2n(1,:)',n2n(2,:)'],'Edges',{linspace(min(n2n(1,:)),max(n2n(1,:)),optM(1)),linspace(min(n2n(2,:)),max(n2n(2,n2n(2,:)~=0)),optM(2))});
     factor = Calc2DhistNormalization(DataSet{i}.ic(1,:),bins{1},MeaMap,[],'n2n');
     Plot2DHist(n2n(1,:)',n2n(2,:)',optM(1),optM(2),xlimit,ylimit,factor,bins);
     title(['N2N: Culture: ', num2str(DataSet{i}.culture),' Channel: ',num2str(DataSet{i}.channel)]);

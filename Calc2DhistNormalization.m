@@ -13,21 +13,22 @@ switch which
                 factor(j,k) = NormalizeDistanceCounts(DistMat,MeaMap,ic(j),bins(k),bins(k+1));
             end
         end
-        %         factor(isinf(factor))=1;
-        %         factor = factor./repmat(sum(factor,2),1,nnB);
-        factor = factor./repmat(sum(factor,1),size(factor,1),1);
-        factor(isnan(factor))=0;
         combs = VChooseK(1:numel(ic),2);
         factor = factor(combs(:,1),:);
+        %--Normalization--%
+        factor = factor./repmat(nansum(factor,1),size(factor,1),1);
+        % This means a 1 is when every possible pair has a tick in a given
+        % bin. 
+        factor(isnan(factor))=0;
     case 'a2n'
         DistMat = CreateElectrodeDistanceTable();
         factor=zeros(1,nnB(1));
         for k=1:nnB(1)-1
             factor(k) = NormalizeDistanceCounts(DistMat,MeaMap,ic,bins(k),bins(k+1));
         end
-        factor = factor./repmat(sum(factor,1),size(factor,1),1);
-        factor(isnan(factor))=0;
         factor = repmat(factor,mask,1);
+        factor = factor./repmat(nansum(factor,1),size(factor,1),1);
+        factor(isnan(factor))=0;
     case 'a2a'
         distmat = triu(regiondist(mask),1);
         factor=zeros(size(distmat,1),nnB(1));
@@ -36,10 +37,10 @@ switch which
                 factor(i,k) =  sum((distmat(i,:)>=bins(k))&(distmat(i,:)<bins(k+1)));
             end
         end
-        factor = factor./repmat(sum(factor,1),size(factor,1),1);
-        factor(isnan(factor))=0;
         combs = VChooseK(1:size(distmat,1),2);
         factor = factor(combs(:,1),:);
+        factor = factor./repmat(nansum(factor,1),size(factor,1),1);
+        factor(isnan(factor))=0;
     otherwise
         error('Not an appropriate selection. The options are: (1) A2N, (2) N2N or (3) A2A');
 end
