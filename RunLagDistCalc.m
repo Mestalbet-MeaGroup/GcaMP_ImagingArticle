@@ -13,14 +13,14 @@ parfor i=1:9
 end
 save('LagDist.mat','a2ad','a2aL','n2nd','n2nL','a2nd','a2nL','a2aB','a2nB','n2nB');
 
-clear all;
-load('LagDist.mat','n2nL','a2aL','a2nL');
-parfor i=1:9
-[aaHisL{i},aaBinL{i}]=CalcHist(a2aL{i});
-[anHisL{i},anBinL{i}]=CalcHist(a2nL{i});
-[nnHisL{i},nnBinL{i}]=CalcHist(n2nL{i});
-end
-save('LagHistos.mat');
+% clear all;
+% load('LagDist.mat','n2nL','a2aL','a2nL');
+% parfor i=1:9
+% [aaHisL{i},aaBinL{i}]=CalcHist(a2aL{i});
+% [anHisL{i},anBinL{i}]=CalcHist(a2nL{i});
+% [nnHisL{i},nnBinL{i}]=CalcHist(n2nL{i});
+% end
+% save('LagHistos.mat');
 
 % clear all; 
 % for i=1:9

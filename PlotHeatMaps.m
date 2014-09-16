@@ -4,6 +4,7 @@ subplot = @(m,n,p) subtightplot (m, n, p, [0.05 0.05], [0.05 0.05], [0.05 0.05])
 %%
 %---Correlation vs. Distance---%
 load('CorrDist.mat');
+load('MeaMapPlot.mat','MeaMap');
 figure;
 xlimit = 500;
 ylimit = 1;

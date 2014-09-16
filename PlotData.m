@@ -128,7 +128,7 @@ ylabel('Delays at Max Corr');
 % Plot Distributions of A2A vs. A2N vs. N2N
 
 clear all;
-i=9;
+i=7;
 loadcult(i);
 a2n=a2n(:);
 nn = tril(nan(size(n2n)),1)+triu(n2n,1);
@@ -139,5 +139,25 @@ a2a = aa(:);
 a2a(isnan(a2a))=[];
 clear_all_but('a2a','a2n','n2n');
 
-% continue here. 
+figure;
+s1 = subplot(3,1,1);
+s2 = subplot(3,1,2);
+s3 = subplot(3,1,3);
 
+dispHIST(a2n', OPTBINS(a2n',1000));
+set(gca,'XLim',[0,1]);
+copyobj(allchild(gca),s1);
+
+
+dispHIST(n2n', OPTBINS(n2n',1000));
+set(gca,'XLim',[0,1]);
+copyobj(allchild(gca),s2);
+
+
+dispHIST(a2a', OPTBINS(a2a',1000));
+set(gca,'XLim',[0,1]);
+copyobj(allchild(gca),s3);
+
+title(s1,'A2N');
+title(s2,'N2N');
+title(s3,'A2A');

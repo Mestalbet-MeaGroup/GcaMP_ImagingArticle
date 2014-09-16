@@ -1,6 +1,7 @@
 function c1=CalcCorrFast(x,maxlag)
 
-combs = VChooseKR(1:size(x,1),2);
+% combs = VChooseKR(1:size(x,1),2);
+combs = VChooseKR_M(1:size(x,1),2);
 e1 = combs(:,1);
 e2 = combs(:,2);
 c=zeros(size(x,1)*size(x,1),maxlag*2+1);

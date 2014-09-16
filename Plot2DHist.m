@@ -9,7 +9,7 @@ hist=zeros(binx,biny);
 [~,idx]=histc(x,bins{1});
 [~,idy]=histc(y,bins{2});
 for i=1:size(idx,1)
-    hist(idx(i)+1,idy(i)+1)=hist(idx(i)+1,idy(i)+1)+factor(i,idx(i)+1);
+    hist(idx(i)+1,idy(i)+1)=hist(idx(i)+1,idy(i)+1)+1;%factor(i,idx(i)+1);
 end
 
 %---Calculate Raw Histogram---%
@@ -29,11 +29,13 @@ else
     colors = [1,1,1;jet(numel(rank))];
 end
 cdatao = real2rgb(hist,colors,[0,max(rank)]);
+hold on;
 s = surface(xo,yo,zo,cdatao,'EdgeColor','none','FaceColor','texturemap','CDataMapping','direct');
 % set(gca,'XLim',[0,3100],'Ylim',[0,1]);
 % set(gca,'XLim',[0,xlimit],'Ylim',[0,1]);
 axis tight;
-set(gca,'XLim',[0,xlimit]);
+ylims = get(gca,'YLim');
+set(gca,'XLim',[0,xlimit+10],'YLim',[0,ylims(2)]);
 % set(gca,'XLim',[0,xlimit],'Ylim',[0,ylimit]);
 
 
@@ -44,7 +46,6 @@ c1 = sum(hist(:) .* rc(:)) / Mt;
 c2 = sum(hist(:) .* cc(:)) / Mt;
 x1=interp1(1:size(bins{1},2),bins{1},c1);
 y1=interp1(1:size(bins{2},2),bins{2},c2);
-hold on;
 plot(x1,y1,'+k','MarkerSize',5,'LineWidth',10);
 
 %---Colorbar---%

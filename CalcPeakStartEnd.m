@@ -1,8 +1,8 @@
 function [ps,pp,pe]=CalcPeakStartEnd(traces)
 set(0,'RecursionLimit',1000);
-% f = savgol(30,5,0);
-% tr=filtfilt(f,1,traces);
-tr=traces;
+f = savgol(30,5,0);
+tr=filtfilt(f,1,traces);
+% tr=traces;
 for j=1:size(tr,2)
     pp{j} = peakfinder(tr(:,j),(max(tr(:,j))-min(tr(:,j)))/2);
     for k=1:size(pp{j},1)
