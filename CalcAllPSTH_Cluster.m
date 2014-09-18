@@ -1,4 +1,6 @@
-load('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2.mat');
+function [atrigpsth, atriglag] = CalcAllPSTH_Cluster()
+load('/home/nl1001/MdcsDataLocation/freiburg/R2013a/remote/DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2.mat');
+
 parfor i=1:9
     t= DataSet{i}.t;
     ic= DataSet{i}.ic;
@@ -7,10 +9,11 @@ parfor i=1:9
     bs = DataSet{i}.bs;
     be = DataSet{i}.be;
     [atrigpsth{i},atriglag{i}]=CalcPSTHastrotriggers(t,ic,traces,time,bs,be);
-%     [ntrigpsth{i},ntriglag{i}]=CalcPSTHneurotriggers(t,ic,traces,time,bs,be);
+    %     [ntrigpsth{i},ntriglag{i}]=CalcPSTHneurotriggers(t,ic,traces,time,bs,be);
     %     clear_all_but('atrigpsth','atriglag','ntrigpsth','ntriglag','i');
 end
-clear_all_but('atrigpsth','atriglag');
+end
+% clear_all_but('atrigpsth','atriglag');
 % save('PSTHdata_byStarts.mat','atrigpsth','atriglag');
 
 %
