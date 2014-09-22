@@ -6,12 +6,29 @@ function s = Plot2DHist(x,y,binx,biny,xlimit,ylimit,factor,bins)
 interp=0;
 %----Calculate Weighted Histogram---%
 hist=zeros(binx,biny);
+hist1=zeros(binx,biny);
+hist2=zeros(binx,biny);
 [~,idx]=histc(x,bins{1});
 [~,idy]=histc(y,bins{2});
 for i=1:size(idx,1)
-    hist(idx(i)+1,idy(i)+1)=hist(idx(i)+1,idy(i)+1)+1;%factor(i,idx(i)+1);
+    hist(idx(i)+1,idy(i)+1)=hist(idx(i)+1,idy(i)+1)+factor(i,idx(i)+1);
+    hist1(idx(i)+1,idy(i)+1)=hist1(idx(i)+1,idy(i)+1)+1;
 end
 
+for k=1:binx
+    f = trapz(bins{2},hist1(k,:));
+    f(f==0)=inf;
+    hist2(k,:) = hist(k,:)./f;
+end
+
+%---Compare Normalizations---%
+figure;
+subplot(1,3,1); imagesc(hist1'); colorbar; %set(gca,'PlotBoxAspectRatio',[binx,biny,1]);
+subplot(1,3,2); imagesc(hist');  colorbar; %set(gca,'PlotBoxAspectRatio',[binx,biny,1]);
+subplot(1,3,3); imagesc(hist2'); colorbar; %set(gca,'PlotBoxAspectRatio',[binx,biny,1]);
+
+hist = hist2;
+figure;
 %---Calculate Raw Histogram---%
 % [hist,bins]  = hist3([x,y],[binx,biny]);
 %---Plot 2D Histogram---%
@@ -52,7 +69,7 @@ plot(x1,y1,'+k','MarkerSize',5,'LineWidth',10);
 ha  = axes('visible','off','CLim', [1, size(colors,1)]);
 colormap(ha,colors);
 cbh = colorbar('peer', ha, 'v',...
-               'XTickLabel',{'0',num2str(nanmax(hist(:)))},...
-               'XTick', [1,size(colors,1)],...
-               'Position', [0.915077251802069,0.103321033210332,0.0138888888888888,0.81549815498155]);
+    'XTickLabel',{'0',num2str(nanmax(hist(:)))},...
+    'XTick', [1,size(colors,1)],...
+    'Position', [0.915077251802069,0.103321033210332,0.0138888888888888,0.81549815498155]);
 end

@@ -4,8 +4,9 @@ function [e1,e2,eval,a1,a_e2,aval,ch,mask]=ParseConnectionValues(which,number,va
 %want to use another value than maximum correlation (from
 %CorrDistributions), add the matrix as an optional third input. 
 load('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2.mat');
-load('CorrDistributions2.mat', 'MaxCosSim');
-MaxCosSim = MaxCosSim{which};
+% load('CorrDistributions2.mat', 'MaxCosSim');
+load('CorrDistribution_Cult6_temp.mat','MaxCosSim');
+% MaxCosSim = MaxCosSim{which};
 numElec = size(DataSet{which}.ic,2);
 
 %--N2N---%

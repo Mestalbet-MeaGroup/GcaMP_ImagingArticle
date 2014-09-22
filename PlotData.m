@@ -13,7 +13,8 @@ for i=1:size(DataSet,1)
     ch = DataSet{i,1}.channel;
     ic = DataSet{i,1}.ic;
     title(['Culture ',num2str(cult),' Channel: ',num2str(ch)]);
-    imagesc(MaxCosSim{i}+MaxCosSim{i}'+eye(size(MaxCosSim{i})));
+    [orderedCmat,~,~]=DendrogramOrderMaxCosSim(MaxCosSim{i},ic);
+    imagesc(orderedCmat);
     set(gca,'XTick',1:size(ic,2)/2:size(ic,2), 'XTickLabel',{'','Neuro',''});
     set(gca,'YTick',size(ic,2)+1:(size(MaxCosSim{i},1)-size(ic,2)+1)/2:size(MaxCosSim{i},1), 'YTickLabel',{'','Astro',''},'YTickLabelRotation',-90);
     set(gca,'PlotBoxAspectRatio',[1,1,1]);
@@ -30,9 +31,9 @@ PlotA2Arealspace(mask,a2a,1000);
 
 %%
 %---Figure 3: Joint PSTH---%
-% load('PSTHdata_byPeaks.mat');
+load('PSTHdata_byPeaks.mat');
 %or
-load('PSTHdata_byStarts.mat');
+% load('PSTHdata_byStarts.mat');
 
 figure;
 i=6;
@@ -41,14 +42,18 @@ subplot(2,4,1:2);
 cult = DataSet{i,1}.culture;
 ch = DataSet{i,1}.channel;
 title(['Astrocyte Triggered, ','Culture ',num2str(cult),' Channel: ',num2str(ch)]);
-imagesc(atrigpsth{i});
+temp = zscore(atrigpsth{i}')';
+temp(temp<0)=0;
+imagesc(temp); 
 xlim([1,100]);
-set(gca,'XTick',[1,10:10:100],'XTickLabel',ntriglag{i}(1):1000:ntriglag{i}(end)+1000,'YTick',[]);
+set(gca,'XTick',[1,10:10:100],'XTickLabel',atriglag{i}(1):1000:atriglag{i}(end)+1000,'YTick',[]);
 ylabel('Pairs');
 
 subplot(2,4,3:4);
 title(['Burst Triggered, ','Culture ',num2str(cult),' Channel: ',num2str(ch)]);
-imagesc(ntrigpsth{i});
+temp = zscore(ntrigpsth{i}')';
+temp(temp<0)=0;
+imagesc(temp); 
 xlim([1,100]);
 set(gca,'XTick',[1,10:10:100],'XTickLabel',ntriglag{i}(1):1000:ntriglag{i}(end)+1000,'YTick',[]);
 ylabel('Pairs');
@@ -128,7 +133,7 @@ ylabel('Delays at Max Corr');
 % Plot Distributions of A2A vs. A2N vs. N2N
 
 clear all;
-i=7;
+i=6;
 loadcult(i);
 a2n=a2n(:);
 nn = tril(nan(size(n2n)),1)+triu(n2n,1);
@@ -144,17 +149,17 @@ s1 = subplot(3,1,1);
 s2 = subplot(3,1,2);
 s3 = subplot(3,1,3);
 
-dispHIST(a2n', OPTBINS(a2n',1000));
+dispHIST(a2n', OPTBINS(a2n',500));
 set(gca,'XLim',[0,1]);
 copyobj(allchild(gca),s1);
 
 
-dispHIST(n2n', OPTBINS(n2n',1000));
+dispHIST(n2n', OPTBINS(n2n',500));
 set(gca,'XLim',[0,1]);
 copyobj(allchild(gca),s2);
 
 
-dispHIST(a2a', OPTBINS(a2a',1000));
+dispHIST(a2a', OPTBINS(a2a',500));
 set(gca,'XLim',[0,1]);
 copyobj(allchild(gca),s3);
 

@@ -22,7 +22,7 @@ for i=1:9
 end
 
 figure;
-xlimit = 4000;
+xlimit = 3100;
 optM=[10,35];
 for i=1:9
     subplot(3,3,i)
@@ -42,12 +42,47 @@ for i=1:9
 %     n2n = [n2nd{i}(~isnan(n2ns{i})),n2ns{i}(~isnan(n2ns{i}))]';
 %     n2n = n2n(:,n2n(2,:)~=0);
     n2n = [n2nd{i},n2ns{i}]';
-    [~,bins]  = hist3([n2n(1,:)',n2n(2,:)'],'Edges',{linspace(min(n2n(1,:)),max(n2n(1,:)),optM(1)),linspace(min(n2n(2,:)),max(n2n(2,:)),optM(2))});
+%     [~,bins]  = hist3([n2n(1,:)',n2n(2,:)'],'Edges',{linspace(min(n2n(1,:)),max(n2n(1,:)),optM(1)),linspace(0,1,optM(2))});
+    bins{1} = linspace(min(n2n(1,:)),max(n2n(1,:)),optM(1));
+    bins{2} = linspace(0,1,optM(2));
     factor = Calc2DhistNormalization(DataSet{i}.ic(1,:),bins{1},MeaMap,[],'n2n');
     Plot2DHist(n2n(1,:)',n2n(2,:)',optM(1),optM(2),xlimit,ylimit,factor,bins);
     title(['N2N: Culture: ', num2str(DataSet{i}.culture),' Channel: ',num2str(DataSet{i}.channel)]);
 end
 clear_all_but('DataSet');
+
+%%
+%---A2N Correlation Versus Firing Rate---%
+
+% load('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2.mat');
+[orderedCmat,ax,nx]=DendrogramOrderMaxCosSim(MaxCosSim{i},ic);
+[ActivityMat,orderedAmat]=CalculateActitivityMat(MaxCosSim{i},traces,fr,ic,nx,ax);
+
+figure;
+subplot(1,2,1);
+imagesc(orderedCmat);   set(gca,'PlotBoxAspectRatio',[1,1,1]); axis off;
+subplot(1,2,2);
+imagesc(orderedAmat);  set(gca,'PlotBoxAspectRatio',[1,1,1]); axis off;
+
+figure;
+c=triu(orderedCmat,1)+tril(nan(size(orderedCmat)),1);
+a=triu(orderedAmat,1)+tril(nan(size(orderedAmat)),1);
+c=c(:); 
+a(isnan(c))=[];
+a=a(:); 
+c(isnan(c))=[];
+plot(a,c,'.');
+
+figure;
+[newx,newy]=CreateSlidingWindow(a,c,100,10);
+plot(newx,nanmean(newy,2),'.');
+title('Binned');
+
+%---N2N Correlation Versus Firing Rate---%
+
+%---A2N Correlation Versus Number of Peaks---%
+
+%---A2A Correlation Versus Number of Peaks---%
 
 %%
 %---Lag versus Distance---%

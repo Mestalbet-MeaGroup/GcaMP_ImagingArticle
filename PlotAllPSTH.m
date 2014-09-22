@@ -6,12 +6,21 @@ parfor i=1:9
     time=DataSet{i}.dfTime;
     bs = DataSet{i}.bs;
     be = DataSet{i}.be;
-    [atrigpsth{i},atriglag{i}]=CalcPSTHastrotriggers(t,ic,traces,time,bs,be);
-%     [ntrigpsth{i},ntriglag{i}]=CalcPSTHneurotriggers(t,ic,traces,time,bs,be);
+%     [atrigpsth{i},atriglag{i}]=CalcPSTHastrotriggers(t,ic,traces,time,bs,be);
+    [ntrigpsth{i},ntriglag{i}]=CalcPSTHneurotriggers(t,ic,traces,time,bs,be);
     %     clear_all_but('atrigpsth','atriglag','ntrigpsth','ntriglag','i');
 end
-clear_all_but('atrigpsth','atriglag');
+% clear_all_but('atrigpsth','atriglag');
 % save('PSTHdata_byStarts.mat','atrigpsth','atriglag');
+% save('PSTHdata_byPeaks.mat','atrigpsth','atriglag');
+save('PSTHdata_byPeaks.mat','ntrigpsth','ntriglag','-append');
+
+
+
+
+
+
+
 
 %
 % load('PSTHdata_byPeaks.mat')

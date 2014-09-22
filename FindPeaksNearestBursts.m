@@ -1,26 +1,13 @@
 function [peakIndex,OnIndex,OffIndex,ClosestValues]=FindPeaksNearestBursts(traces,time,BurstOnsets);
+% Function which take traces, times and burst starts and (1) Finds the
+% peaks within each trace and (2) Calculates the minimum distance between
+% each peak and its nearest burst start.  
+[OnIndex,peakIndex,OffIndex]=CalcPeakStartEnd(traces); 
 
-% f = savgol(35,5,0);
-[ps,peakIndex,pe]=CalcPeakStartEnd(traces); %works for clean signals
-% peaks = ConservativePeakDetection(traces); %works for noisy signals
-OnIndex = ps;
-OffIndex = pe;
-
-% PeakIndex = FindCaCalciumPeaks(traces(:,1));
 for j=1:size(traces,2)
     
-    %     bs = ps{j};
-    %     be = pe{j};
-    %     OnIndex{j}=bs;
-    %     OffIndex{j}=be;
-    %     clear bs; clear be;
-    %
-    %     if numel(peakIndex{j})>5*numel(peaks{j})
-    %          a = time(peaks{j});
-    %     else
-    a = time(peakIndex{j});
-    %     end
-    b = BurstOnsets./12000;
+    a = time(peakIndex{j}); %time of peak in seconds
+    b = BurstOnsets./12000; %convert to seconds
     m = numel(a);
     n = numel(b);
     
@@ -32,11 +19,7 @@ for j=1:size(traces,2)
     s = t(q(1:m));
     id = r(max(s,1));
     iu = r(min(s+1,n));
-    temp = (a-b(id));
-    temp(temp<0)=nan;
-    ClosestValues{j}=temp;
-    %     [ClosestValues{j},~] = min([abs(a-b(id));abs(b(iu)-a)]);
-    
+    ClosestValues{j} = (a-b(id));  
     
 end
 

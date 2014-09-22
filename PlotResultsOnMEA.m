@@ -78,7 +78,7 @@ if size(varargin,2)>2
     yposa = (centers(a1,2)+yo(1,1))';
     [allvals,rank]=sort([value,avals]);
     [~,~,allv_index] = unique(allvals);
-    rank = rank(allv_index);
+    
     if ~isempty(e1) %In case you want to plot just A2N
         a1=a1+max(e1);
         sources = [e1,a1];
@@ -86,6 +86,7 @@ if size(varargin,2)>2
         sources = a1;
     end
     sources=sources(rank);
+    rank = rank(allv_index);
     colors = flip(jet(numel(sources)),1);
     for i=1:numel(e1)
         [x1,y1] = find(MeaMap==e1(i));

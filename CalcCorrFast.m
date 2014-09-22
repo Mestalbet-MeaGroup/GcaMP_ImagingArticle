@@ -22,7 +22,8 @@ linidx= sub2ind([size(x,1),size(x,1)],e1,e2);
 temp=zeros(numel(e1),maxlag*2+1);
 parfor i=1:numel(e1)
     if abs(e1(i)-e2(i))>0
-        temp(i,:)=xcorr(x(e1(i),:),x(e2(i),:),maxlag,'coeff');
+%         temp(i,:)=xcorr((x(e1(i),:)-mean(x(e1(i),:)))./var(x(e1(i),:)),(x(e2(i),:)-mean(x(e2(i),:)))./var(x(e2(i),:)),maxlag,'coeff');
+          temp(i,:)=xcorr(x(e1(i),:),x(e2(i),:),maxlag,'coeff');
     end
 end
 c(linidx,:)=temp;
