@@ -42,11 +42,17 @@ subplot(2,4,1:2);
 cult = DataSet{i,1}.culture;
 ch = DataSet{i,1}.channel;
 title(['Astrocyte Triggered, ','Culture ',num2str(cult),' Channel: ',num2str(ch)]);
-temp = zscore(atrigpsth{i}')';
+%---Order by Offsets---%
+% order = SortPSTHpairs(atrigpsth{i});
+%---No Ordering---%
+order = 1:size(atrigpsth{i},1);
+%----------------------%
+temp = zscore(atrigpsth{i}(order,:)')';
 temp(temp<0)=0;
-imagesc(temp); 
-xlim([1,100]);
-set(gca,'XTick',[1,10:10:100],'XTickLabel',atriglag{i}(1):1000:atriglag{i}(end)+1000,'YTick',[]);
+temp = temp(2500:end,:); 
+imagesc(atriglag{6},1:size(temp,1),temp);
+xlim([-4900,4900]);
+% set(gca,'XTick',[1,10:10:100],'XTickLabel',atriglag{i}(1):1000:atriglag{i}(end)+1000,'YTick',[]);
 ylabel('Pairs');
 
 subplot(2,4,3:4);
@@ -105,7 +111,7 @@ ylabel('Correlation');
 figure;
 subplot = @(m,n,p) subtightplot (m, n, p, [0.05 0.05], [0.05 0.05], [0.05 0.05]);
 which=6;
-lg = matfile('LagDist.mat');
+lg = matfile('LagDist2.mat');
 a2aL = lg.a2aL(1,which); a2aL=a2aL{1};
 a2nL = lg.a2nL(1,which);a2nL=a2nL{1};
 n2nL = lg.n2nL(1,which);n2nL=n2nL{1};

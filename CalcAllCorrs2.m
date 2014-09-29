@@ -8,5 +8,10 @@ end
 clear_all_but('CosSim','lags');
 save('CosSimTemp2.mat','CosSim','lags');
 
-[MaxCosSim,ix] = nanmax(CosSim,[],3);
-LagAtMax = tril(nan(size(MaxCosSim)))+triu(lags(ix),1);
+mf = matfile('F:\CosSimTemp2.mat');
+parfor i=1:9
+    cs = mf.CosSim(1,i);
+    cs = cs{1};
+    [MaxCosSim,ix] = nanmax(cs,[],3);
+    LagAtMax{i} = tril(nan(size(MaxCosSim)))+triu(lags(ix),1);
+end

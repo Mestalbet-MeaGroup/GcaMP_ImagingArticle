@@ -3,7 +3,7 @@ subplot = @(m,n,p) subtightplot (m, n, p, [0.05 0.05], [0.05 0.05], [0.05 0.05])
 
 %%
 %---Correlation vs. Distance---%
-load('CorrDist.mat');
+load('CorrDist2.mat');
 load('MeaMapPlot.mat','MeaMap');
 figure;
 xlimit = 500;
@@ -87,7 +87,7 @@ title('Binned');
 %%
 %---Lag versus Distance---%
 clear_all_but('DataSet','subplot');
-load('LagDist.mat');
+load('LagDist2.mat');
 load('MeaMapPlot.mat','MeaMap');
 
 %--A2A--%

@@ -116,7 +116,7 @@ if size(varargin,2)>2
     ctick = 0:(1/numel(allvals))/2:1;
     ctick=ctick(2:2:end-1);
     if numel(ctick)>100
-        set(c,'Ticks',ctick(1:10:end),'TickLabels',allvals(1:10:end));
+        set(c,'Ticks',[ctick(1),ctick(end/2),ctick(end)],'TickLabels',round([allvals(1),allvals(end/2),allvals(end)].*100)./100);
     else
         set(c,'Ticks',ctick(1:2:end),'TickLabels',allvals(1:2:end));
     end

@@ -14,7 +14,7 @@ switch which
             end
             factor(j,:) = factor(j,:)./trapz(binsd,factor(j,:));    
         end
-
+%         bar(binsd,factor(15,:))
         combs = VChooseK(1:numel(ic),2);
         factor = factor(combs(:,1),:);
         %--Normalization--%
@@ -28,7 +28,9 @@ switch which
         for k=1:nnB(1)-1
             factor(k) = NormalizeDistanceCounts(DistMat,MeaMap,ic,binsd(k),binsd(k+1));
         end
+%         bar(binsd,factor./trapz(binsd,factor));
         factor = repmat(factor./trapz(binsd,factor),mask,1);
+       
 %         factor = factor./(255*size(factor,1));
 %         factor = factor./repmat(nansum(factor,1),size(factor,1),1);
         factor(isnan(factor))=0;

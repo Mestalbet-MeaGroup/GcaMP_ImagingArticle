@@ -48,8 +48,10 @@ set(gca,'YColor','w','XColor','w');
 ylabel('Regions of Interest','color','k');
 % Overlay Firing Rate
 hold on;
-patchline(trtime,zscore(mean(fr,2)),'linestyle','-','edgecolor','r','linewidth',5,'edgealpha',0.2);
+patchline(trtime,zscore(mean(fr,2)),'linestyle','-','edgecolor','r','linewidth',25,'edgealpha',0.3);
 hold off;
+set(gca,'FontSize',18);
+box on;
 %----------------------------------%
 subplot(10,1,6:10);
 RasterPlotLineTrace(t,ic,min(trtime)*12000,max(trtime)*12000,mean(tr2,1),trtime.*12000);

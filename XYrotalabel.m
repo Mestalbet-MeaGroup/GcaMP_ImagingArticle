@@ -115,10 +115,10 @@ set(Axis,'YTickLabel',[],'XTickLabel',[]);
 
 % Second do the X-axis
 XTy=repmat(X,size(XTicks));
-XText = text(XTicks-XYdX(1)*XDelt, XTy-XYdX(2)*YDelt, XTickLabels,varargin{:});
+XText = text(XTicks-XYdX(1)*XDelt, XTy-XYdX(2)*YDelt, XTickLabels,'FontSize',get(gca,'FontSize'),varargin{:});
 set(XText,'Rotation',RotX,'HorizontalAlignment','right','VerticalAlignment','top');
 
 % Third do the Y-axis
 YTx=repmat(Y,size(YTicks));
-YText = text(YTx-XYdY(1)*XDelt, YTicks-XYdY(2)*YDelt, YTickLabels,varargin{:});
+YText = text(YTx-XYdY(1)*XDelt, YTicks-XYdY(2)*YDelt, YTickLabels,'FontSize',get(gca,'FontSize'),varargin{:});
 set(YText,'Rotation',RotY,'HorizontalAlignment','right','VerticalAlignment','bottom');
