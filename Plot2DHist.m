@@ -28,7 +28,7 @@ interp=0;
 % subplot(1,3,3); imagesc(hist2'); colorbar; %set(gca,'PlotBoxAspectRatio',[binx,biny,1]);
 % 
 % hist = hist2;
-figure;
+% figure;
 %---Calculate Raw Histogram---%
 [hist,bins]  = hist3([x,y],[binx,biny]);
 %---Plot 2D Histogram---%

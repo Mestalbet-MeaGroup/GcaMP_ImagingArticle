@@ -41,6 +41,8 @@ for i=1:9
 %     optM = n2nB{1};
 %     n2n = [n2nd{i}(~isnan(n2ns{i})),n2ns{i}(~isnan(n2ns{i}))]';
 %     n2n = n2n(:,n2n(2,:)~=0);
+%     n2nd = mf.n2nd(1,i);
+%     n2ns = mf.n2ns(1,i);
     n2n = [n2nd{i},n2ns{i}]';
 %     [~,bins]  = hist3([n2n(1,:)',n2n(2,:)'],'Edges',{linspace(min(n2n(1,:)),max(n2n(1,:)),optM(1)),linspace(0,1,optM(2))});
     bins{1} = linspace(min(n2n(1,:)),max(n2n(1,:)),optM(1));

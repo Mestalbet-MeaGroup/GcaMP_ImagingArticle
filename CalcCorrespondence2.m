@@ -1,9 +1,9 @@
 function results=CalcCorrespondence2(w);
 
 load('MeaMapPlot.mat','MeaMap');
-% load('CorrDistributions2.mat', 'MaxCosSim')
+load('CorrDistributions2.mat', 'MaxCosSim','LagAtMax');
 load('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2.mat', 'DataSet')
-load('CorrDistribution_Cult6_temp2.mat', 'LagAtMax', 'MaxCosSim')
+% load('CorrDistribution_Cult6_temp2.mat', 'LagAtMax', 'MaxCosSim')
 % MaxCosSim = MaxCosSim{w};
 ic= DataSet{w}.ic;
 a2a=MaxCosSim(size(ic,2)+1:end,size(ic,2)+1:end);

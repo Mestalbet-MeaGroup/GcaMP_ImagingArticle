@@ -14,9 +14,9 @@ PairWiseLags = temp(:,1);
 % [StartAmpRise,~,~]=CalcPeakStartEnd(traces); %Peak starts
 
 combs = allcomb(1:size(traces,2),1:size(ic,2));
+assignin('base','combs',combs);
 i = combs(:,2);
 j = combs(:,1);
-
 starts = ic(3,i);
 ends = ic(4,i);
 StartAmpRise=StartAmpRise(j);

@@ -28,7 +28,7 @@ y = repmat(1:size(MeaImage,1),size(MeaImage,2),1);
 z = zeros(size(y));
 cdata = real2rgb(MeaImage,'gray',[0,255]);
 surface(x,y,z,cdata,'EdgeColor','none','FaceColor','texturemap','CDataMapping','direct'); axis('tight');axis('square');
-
+set(gca,'FontSize',18);
 % alpha(0.5);
 
 %--Find Electrode Positions---%

@@ -82,7 +82,7 @@ end
 figure;
 which=6;
 subplot = @(m,n,p) subtightplot (m, n, p, [0.05 0.05], [0.05 0.05], [0.05 0.05]);
-cr = matfile('CorrDist.mat');
+cr = matfile('CorrDist2.mat');
 a2as = cr.a2as(1,which); a2as=a2as{1};
 a2ns = cr.a2ns(1,which);a2ns=a2ns{1};
 n2ns = cr.n2ns(1,which);n2ns=n2ns{1};
