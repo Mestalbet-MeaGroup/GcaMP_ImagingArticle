@@ -1,7 +1,7 @@
-function [PeakTypeBurst,PeakTypeOther,on,nc]=ClassifyAstroPeaks(t,ic,traces,time,bs)
+function [PeakTypeBurst,PeakTypeOther,on,nc,ClosestNear,ClosestFar]=ClassifyAstroPeaks(t,ic,traces,time,bs)
 % Function which finds the peaks in the astro trace which are associated with bursts.
 
-[pi,~,~,ClosestValues]=FindPeaksNearestBursts(traces,time,bs);
+[pi,~,~,ClosestValues,~]=FindPeaksNearestBursts(traces,time,bs,sort(t));
 
 %---Calculate the range for what to consider near to burst starts based on jPSTH---%
 % [PairWisePSTH,PairWiseLags]=CalcPSTHastrotriggers(t,ic,traces,time,bs,be);
@@ -24,7 +24,7 @@ function [PeakTypeBurst,PeakTypeOther,on,nc]=ClassifyAstroPeaks(t,ic,traces,time
 % end
 
 %---Assign the same time limits to each culture---%
-sTime=0.7;
+sTime=1;
 eTime=3;
 %-------------------------------------------%
 
@@ -40,6 +40,8 @@ for i=1:size(traces,2)
         %         out = setdiff(1:numel(ClosestValues{i}),in);
         out = find(abs(ClosestValues{i})>eTime);
         OnIndex = pi{i}(in);
+        ClosestNear{i} = ClosestValues{i}(in);
+        ClosestFar{i} = ClosestValues{i}(out);
         notCloseOn = pi{i}(out);
         on = [time(OnIndex),on];
         nc = [time(notCloseOn),nc];

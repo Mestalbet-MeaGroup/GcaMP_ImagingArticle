@@ -1,13 +1,13 @@
-function [peakIndex,OnIndex,OffIndex,ClosestValues]=FindPeaksNearestBursts(traces,time,BurstOnsets);
+function [peakIndex,OnIndex,OffIndex,ClosestValues,BurstIndex]=FindPeaksNearestBursts(traces,time,BurstOnsets,t);
 % Function which take traces, times and burst starts and (1) Finds the
 % peaks within each trace and (2) Calculates the minimum distance between
 % each peak and its nearest burst start.  
-[OnIndex,peakIndex,OffIndex]=CalcPeakStartEnd(traces); 
 
+[OnIndex,peakIndex,OffIndex]=CalcPeakStartEnd(traces); 
+ b = arrayfun(@(x) max(t(find(t>=x,10,'First'))),BurstOnsets)./12000; %convert to seconds
 for j=1:size(traces,2)
     
     a = time(peakIndex{j}); %time of peak in seconds
-    b = BurstOnsets./12000; %convert to seconds
     m = numel(a);
     n = numel(b);
     
@@ -20,7 +20,7 @@ for j=1:size(traces,2)
     id = r(max(s,1));
     iu = r(min(s+1,n));
     ClosestValues{j} = (a-b(id));  
-    
+    BurstIndex{j} = id;
 end
 
 

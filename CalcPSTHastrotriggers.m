@@ -6,6 +6,7 @@ bin = 100; %ms
 
 % Create lags
 [t,ic] = RemoveHAneurons(t,ic,bursts,burste);
+[t,ic] = CutSortChannel2(t,ic,min(time)*12000,max(t));
 temp  = mpsth(t(ic(3,1):ic(4,1))./12000,time(floor(end/2)),'tb',1,'fr',0,'pre',pre,'post',post,'binsz',bin);
 PairWiseLags = temp(:,1);
 

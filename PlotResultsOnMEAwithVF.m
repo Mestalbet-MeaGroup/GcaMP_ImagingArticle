@@ -1,4 +1,4 @@
-function PlotResultsOnMEA(e1,e2,value,varargin)
+function PlotResultsOnMEAwithVF(e1,e2,value,varargin)
 % Function which accepts a series of electrode sources and targets, and a
 % value (same number of sources, targets and values) then plots a line
 % connecting source to target, with a color determined by value. Requires
@@ -23,13 +23,6 @@ load('MeaMapPlot.mat','MeaImage','MeaMap');
 MeaMap = rot90(MeaMap,-1);
 
 %---Plot Mea Image---%
-x = repmat([1:size(MeaImage,1)]',1,size(MeaImage,1));
-y = repmat(1:size(MeaImage,1),size(MeaImage,2),1);
-z = zeros(size(y));
-cdata = real2rgb(MeaImage,'gray',[0,255]);
-surface(x,y,z,cdata,'EdgeColor','none','FaceColor','texturemap','CDataMapping','direct'); axis('tight');axis('square');
-set(gca,'FontSize',18);
-% alpha(0.5);
 
 %--Find Electrode Positions---%
 mask = otsu(MeaImage,45);
@@ -45,6 +38,17 @@ ypos = [nan;ypos(1:14);nan;ypos(15:238);nan;ypos(239:end);nan];
 %---Reshape xpos and ypos into 16x16 grid---%
 xpos=reshape(xpos,16,16);
 ypos=reshape(ypos,16,16);
+hold on
+plot(centers(:,2),centers(:,1), 'o',...
+    'LineWidth',2,...
+    'MarkerEdgeColor','k',...
+    'MarkerFaceColor',[1 1 1]);
+xlim([-100,3100]);
+ylim([-100,3100]);
+set(gca,'Color','black');
+set(gca,'PlotBoxAspectRatio',[1,1,1]);
+set(gca,'FontSize',18);
+
 %--Plot Mask--%
 if ~isempty(varargin)
     overlay = varargin{1};
@@ -55,16 +59,17 @@ if ~isempty(varargin)
         sitex=1;
         sitey=1;
     end
+    mask = overlay;
     overlay = imresize(overlay,[357.6,501.2]);
-    cdatao = real2rgb(overlay,[255,0,0;152,152,152]./255,[0,1]);
+%     cdatao = real2rgb(overlay,[255,0,0;152,152,152]./255,[0,1]);
     xo = repmat(1:size(overlay,2),size(overlay,1),1)+xpos(sitex,sitey)-2*size(overlay,1)/3;
     yo = repmat([1:size(overlay,1)]',1,size(overlay,2))+ypos(sitex,sitey)-size(overlay,2)/3-12.5;
     zo = zeros(size(overlay));
-    s = surface(xo,yo,zo,cdatao,'EdgeColor','none','FaceColor','texturemap','CDataMapping','direct'); axis('tight');%axis('square');
-    xvec = 0:480.3997:2.8824e+03;
-    set(gca,'XTick',xvec,'XTickLabel',xvec.*1.0408); % 200/sqrt((xpos(1,3)-xpos(1,2))^2+(ypos(1,3)-ypos(1,2))^2)
-    uistack(s,'top');
-    alpha(s,'texture');
+%     s = surface(xo,yo,zo,cdatao,'EdgeColor','none','FaceColor','texturemap','CDataMapping','direct'); %axis('tight');%axis('square');
+%     xvec = 0:480.3997:2.8824e+03;
+%     set(gca,'XTick',xvec,'XTickLabel',xvec.*1.0408); % 200/sqrt((xpos(1,3)-xpos(1,2))^2+(ypos(1,3)-ypos(1,2))^2)
+%     uistack(s,'top');
+%     alpha(s,'texture');
 end
 
 %--Find ROIs and Plot---%
@@ -73,31 +78,35 @@ if size(varargin,2)>2
     a1=varargin{3};
     a_e2=varargin{4};
     avals=varargin{5};
-    centers  = cell2mat(arrayfun(@(x) x.Centroid, regionprops(~overlay,'Centroid'),'uniformoutput',0));
+    cM  = cell2mat(arrayfun(@(x) x.Centroid, regionprops(~mask,'Centroid'),'uniformoutput',0));
+    centers=zeros(size(cM));
+    [centers(:,1),centers(:,2)] = ConvertResizedCoordinates(mask,overlay,cM(:,1),cM(:,2));
+%     centers  = cell2mat(arrayfun(@(x) x.Centroid, regionprops(~overlay,'Centroid'),'uniformoutput',0));
     xposa = (centers(a1,1)+xo(1,1))';
     yposa = (centers(a1,2)+yo(1,1))';
-    [allvals,rank]=sort([value,avals]);
-    [~,~,allv_index] = unique(allvals);
-    
-    if ~isempty(e1) %In case you want to plot just A2N
-        a1=a1+max(e1);
-        sources = [e1,a1];
-    else
-        sources = a1;
-    end
+    [allvalsN,rank]=sort(value);
+    [~,~,allv_index] = unique(allvalsN);
+    sources = e1;
     sources=sources(rank);
     rank = rank(allv_index);
-    colors = flip(jet(numel(sources)),1);
+    colorsN = cbrewer('seq','Purples',numel(sources));
+    
     for i=1:numel(e1)
         [x1,y1] = find(MeaMap==e1(i));
         [x2,y2] = find(MeaMap==e2(i));
         loc = find(sources==e1(i),1,'First');
-        score=colors(rank(loc),:);
+        score=colorsN(rank(loc),:);
         sources(loc)=nan;  %in case two connections have the same source (non-unique elements in e1)
-        l = line([xpos(x1,y1),xpos(x2,y2)],[ypos(x1,y1),ypos(x2,y2)],'color',score,'linewidth',0.5);
+%         l = patchline([xpos(x1,y1),xpos(x2,y2)],[ypos(x1,y1),ypos(x2,y2)],'linestyle','-','edgecolor',score,'linewidth',6,'edgealpha',0.8);
+        l = line([xpos(x1,y1),xpos(x2,y2)],[ypos(x1,y1),ypos(x2,y2)],'color',score,'linewidth',1);
         uistack(l,'top');
     end
-    
+    [allvals,rank]=sort(avals);
+    [~,~,allv_index] = unique(allvals);
+    sources = a1;
+    sources=sources(rank);
+    rank = rank(allv_index);
+    colors = cbrewer('seq','YlOrRd',numel(sources));
     for i=1:numel(a_e2)
         x1=xposa(i);
         y1=yposa(i);
@@ -105,13 +114,27 @@ if size(varargin,2)>2
         loc = find(sources==(a1(i)),1,'First');
         score=colors(rank(loc),:);
         sources(loc)=nan; %in case two connections have the same source (non-unique elements in a1)
-        al = line([x1,xpos(ax2,ay2)],[y1,ypos(ax2,ay2)],'color',score,'linewidth',0.5);
+        al = patchline([x1,xpos(ax2,ay2)],[y1,ypos(ax2,ay2)],'linestyle','-','edgecolor',score,'linewidth',3,'edgealpha',0.7);
+%         al = line([x1,xpos(ax2,ay2)],[y1,ypos(ax2,ay2)],'color',score,'linewidth',3);
         uistack(al,'top');
-        %         display(i);
     end
-    %--Colorbar---%
+    %--Colorbar Neuros---%
+    hn  = axes('visible','off');
+    colormap(hn,colorsN);
+    c = colorbar('westoutside');
+    ctick = 0:(1/numel(allvalsN))/2:1;
+    ctick=ctick(2:2:end-1);
+    if numel(ctick)>100
+        set(c,'Ticks',[ctick(1),ctick(floor(end/2)),ctick(end)],'TickLabels',round([allvalsN(1),allvalsN(floor(end/2)),allvalsN(end)].*100)./100);
+    else
+        set(c,'Ticks',ctick(1:2:end),'TickLabels',allvalsN(1:2:end));
+    end
+    caxis(caxis);
+    set(gca,'FontSize',18);
+    
+    %--Colorbar Astros---%
     ha  = axes('visible','off');
-    colormap(ha,jet(numel(allvals)));
+    colormap(ha,colors);
     c = colorbar;
     ctick = 0:(1/numel(allvals))/2:1;
     ctick=ctick(2:2:end-1);
@@ -121,27 +144,7 @@ if size(varargin,2)>2
         set(c,'Ticks',ctick(1:2:end),'TickLabels',allvals(1:2:end));
     end
     caxis(caxis);
-else
-    %---Find Just Electrodes and Plot---%
-    colors = jet(numel(e1));
-    [value,rank] = sort(value);
-    value = round(value*1000)/1000;
-    e1=e1(rank);
-    e2=e2(rank);
-    for i=1:numel(e1)
-        [x1,y1] = find(MeaMap==e1(i));
-        [x2,y2] = find(MeaMap==e2(i));
-        score=colors(rank(i),:);
-        l = line([xpos(x1,y1),xpos(x2,y2)],[ypos(x1,y1),ypos(x2,y2)],'color',score,'linewidth',3);
-        uistack(l,'top');
-    end
-    ha  = axes('visible','off');
-    colormap(ha,jet(numel(e1)));
-    c = colorbar;
-    ctick = 0:(1/numel(e1))/2:1;
-    ctick=ctick(2:2:end-1);
-    set(c,'Ticks',ctick,'TickLabels',value);
-    caxis(caxis);
+    set(gca,'FontSize',18);
 end
-
+% set(gcf,'Color','black');
 end
