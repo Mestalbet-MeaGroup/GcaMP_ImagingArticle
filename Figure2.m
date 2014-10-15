@@ -7,6 +7,7 @@ load('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2_ManSBs
 %% Subplot 1: Peaks near bursts by amplitude
 k=6;
 [PeakTypeBurst,PeakTypeOther,on,nc,DispNear,DispFar]=ClassifyAstroPeaks(DataSet{k}.Trim.t,DataSet{k}.Trim.ic,DataSet{k}.dfTraces,DataSet{k}.dfTime,[DataSet{k}.Trim.bs,DataSet{k}.sbs]);
+figure;
 amps  = nanmax(PeakTypeBurst,[],1);
 numlevs=3;
 ranks = otsu(amps,numlevs);
@@ -18,6 +19,7 @@ for i=1:numlevs
 end
     
 %% Subplot 2: Peaks near bursts by latency
+figure;
 PeakTypeBurst = PeakTypeBurst(:,ranks>1);
 time = [0:size(PeakTypeBurst,1)-1]./DataSet{k}.fs;
 % range = 40:90;
@@ -72,6 +74,7 @@ xlabel('Displacement [sec]');
 ylabel('Latency [sec]');
 
 %% Subplot 5: Latency vs. Amplitude
+figure;
 scatter(latency,amplitudes);
 xlabel('Latency [sec]');
 ylabel('Amplitudes [a.u.]');
