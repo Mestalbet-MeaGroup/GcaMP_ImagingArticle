@@ -1,8 +1,8 @@
 function [PeakTypeBurst,PeakTypeOther,on,nc,ClosestNear,ClosestFar]=ClassifyAstroPeaks(t,ic,traces,time,bs)
 % Function which finds the peaks in the astro trace which are associated with bursts.
 
-[pi,~,~,ClosestValues,~]=FindPeaksNearestBursts(traces,time,bs,sort(t));
-
+% [pi,~,~,ClosestValues,~]=FindPeaksNearestBursts(traces,time,bs,sort(t));
+[~,~,ClosestValues,~,pi]=FindPeaksNearestBursts(traces,time,bs,sort(t));
 %---Calculate the range for what to consider near to burst starts based on jPSTH---%
 % [PairWisePSTH,PairWiseLags]=CalcPSTHastrotriggers(t,ic,traces,time,bs,be);
 % clusters = kmeans(PairWisePSTH',5);

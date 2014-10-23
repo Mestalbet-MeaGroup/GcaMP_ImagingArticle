@@ -1,187 +1,123 @@
+
 %---Figure 3---%
-load('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2_ManSBs_withTrim.mat')
+load('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2_ManSBs_withTrim_noBSinSBS.mat')
 k=6;
+
+%------------------------Find Categories of Events----------------------------%
+[b2pi,p2bi,p2b_cv,b2p_cv,peaks]=FindPeaksNearestBursts(DataSet{k}.dfTraces,DataSet{k}.dfTime,DataSet{k}.bs,sort(DataSet{k}.t));
+[sb2pi,p2sbi,p2sb_cv,sb2p_cv,peaksSB]=FindPeaksNearestBursts(DataSet{k}.dfTraces,DataSet{k}.dfTime,DataSet{k}.sbs,sort(DataSet{k}.t));
+% [~,~,p2bSB_cv,~,~]=FindPeaksNearestBursts(DataSet{k}.dfTraces,DataSet{k}.dfTime,[DataSet{k}.bs,DataSet{k}.sbs],sort(DataSet{k}.t));
+% b2p = index for each burst of the closest peak
+% b2p_cv = corresponding distance between burst and peak
+
+% p2b = index for each peak of the closest burst
+% p2b_cv = corresponding distance between peak and burst
+
+% sb2p = index for each superburst of the closest peak
+% p2sb_cv = corresponding distance between superburst and peak
+
+% p2sb = index for each peak of the closest superburst
+% p2sb_cv = corresponding distance between peak and superburst
+
+%% Find Set of Peaks with Bursts Nearby
+for i=1:size(p2bi,2)
+    dis = p2b_cv{i};
+    index = find((dis>0)&(dis<1));
+    bi{i} = p2bi{i}(index);
+    pi{i} = peaks{i}(index);
+end
+
+%% Find Set of Peaks with Bursts Far Away
+for i=1:size(p2bi,2)
+    dis = p2b_cv{i};
+    index1 = find(abs(dis)>3); 
+    dis2 = abs(p2sb_cv{i});
+    sbw = DataSet{k}.sbw(p2sbi{i})./12000;
+    index2 = find(dis2<sbw);
+    index =index1(~ismember(index1,index2));
+    Nob_pi{i} = peaks{i}(index);
+end
+
+%% Find Set of Bursts with no corresponding Peaks
+for i=1:size(p2bi,2)
+    dis = b2p_cv{i};
+    index1 = find(abs(dis)>3); 
+    dis2 = abs(sb2p_cv{i});
+    sbw = DataSet{k}.sbw(p2sbi{i}(sb2pi{i}))./12000;
+    index2 = find(dis2<sbw);
+    index =index1(~ismember(index1,index2));
+    No_bi{i} = index;
+end
+% Are most skipped bursts close to another burst? Are most skipped bursts
+% weaker than non-skipped bursts? Farther away?
+%% Find Set of Peaks near SuperBursts
+for i=1:size(p2sbi,2)
+    dis = p2sb_cv{i};
+    index = find((dis>0)&(dis<3));
+    SB_pi{i} =  peaks{i}(index);
+    SB_bi{i} =  unique(p2sbi{i}(index));
+end
 %% Subplot 1-2: Astrocyte Trace Raster
 PlotAstroTracesWithRaster(DataSet{k}.dfTraces',DataSet{k}.dfTime,DataSet{k}.Trim.t,DataSet{k}.Trim.ic);
 
-%% Find Categories
-
-%---Find Set of Bursts and Traces That Co-Occur---%
-[peakIndex,~,~,ClosestValues,BurstIndex]=FindPeaksNearestBursts(DataSet{k}.dfTraces,DataSet{k}.dfTime,DataSet{k}.Trim.bs,DataSet{k}.t);
-%--Remove very low amp peaks (avoid type I errors)--%
-for i=1:size(DataSet{k}.dfTraces,2)
-    amps{i}  = DataSet{k}.dfTraces(peakIndex{i},i);
-end
-numlevs=3;
-amppooled = cell2mat(amps');
-ranks = otsu(amppooled,numlevs);
-cutoff=max(amppooled(ranks==1));
-
-for i=1:size(peakIndex,2)
-    remove=DataSet{k}.dfTraces(peakIndex{i},i)<cutoff;
-    peakIndex{i}(remove)=[];
-    ClosestValues{i}(remove)=[];
-    BurstIndex{i}(remove)=[];
-    dis = ClosestValues{i};
-    index = find((dis>0)&(dis<1));
-    bi{i} = BurstIndex{i}(index); %why are there so few when it looks like it happens all the time?
-    pi{i} = peakIndex{i}(index);
-end
-
-%---Find Set of Traces with no Bursts---%
-[peakIndex1,~,~,ClosestValues1,BurstIndex1]=FindPeaksNearestBursts(DataSet{k}.dfTraces,DataSet{k}.dfTime,sort([DataSet{k}.sbs,DataSet{k}.Trim.bs]),DataSet{k}.t);  %Includes SBs, so peaks within SBs are selected by mistake
-%--Remove very low amp peaks (avoid type I errors)--%
-for i=1:size(DataSet{k}.dfTraces,2)
-    amps{i}  = DataSet{k}.dfTraces(peakIndex1{i},i);
-end
-numlevs=3;
-amppooled = cell2mat(amps');
-ranks = otsu(amppooled,numlevs);
-cutoff=max(amppooled(ranks==1));
-
-sbslocs=find(ismember(sort([DataSet{k}.sbs,DataSet{k}.Trim.bs]),DataSet{k}.sbs)==1); %Superbursts
-for i=1:size(peakIndex1,2)
-    remove=DataSet{k}.dfTraces(peakIndex1{i},i)<cutoff;
-    peakIndex1{i}(remove)=[];
-    ClosestValues1{i}(remove)=[];
-    BurstIndex1{i}(remove)=[];
-    dis = abs(ClosestValues1{i});
-    index = find(dis>3);
-    temp = BurstIndex1{i}(index);
-    remove = (ismember(temp,sbslocs));
-    temp(remove)=[];
-    Nob_bi{i}=temp;
-    temp = peakIndex1{i}(index);
-    temp(remove)=[];
-    Nob_pi{i}=temp;
-end
-
-%---Find Set of Superbursts and Traces That Co-Occur---%
-[SBpeakindex,~,~,SBclosestvalues,SBburstindex]=FindPeaksNearestBursts(DataSet{k}.dfTraces,DataSet{k}.dfTime,DataSet{k}.sbs,DataSet{k}.t);
-%--Remove very low amp peaks (avoid type I errors)--%
-for i=1:size(DataSet{k}.dfTraces,2)
-    amps{i}  = DataSet{k}.dfTraces(SBpeakindex{i},i);
-end
-numlevs=3;
-amppooled = cell2mat(amps');
-ranks = otsu(amppooled,numlevs);
-cutoff=max(amppooled(ranks==1));
-for i=1:size(peakIndex,2)
-    remove=DataSet{k}.dfTraces(peakIndex{i},i)<cutoff;
-    SBpeakindex{i}(remove)=[];
-    SBclosestvalues{i}(remove)=[];
-    SBburstindex{i}(remove)=[];
-    dis = ClosestValues{i};
-    index = find((dis>0)&(dis<1));
-    SB_bi{i} = BurstIndex{i}(index);
-    SB_pi{i} = SBpeakindex{i}(index);
-end
-
-%---Find Set of Bursts with no Traces---%
-% for i=1:size(bi,2)
-%     temp=1:numel(DataSet{k}.Trim.bs);
-%     temp(unique(bi{i}))=[];
-%     NoT_bi{i} = temp;
-% end
-temp=1:numel(DataSet{k}.Trim.bs);
-temp(unique(cell2mat(bi)))=[];
-NoT_bi = temp;
-
-%% Subplot 3: Bursts and Traces
-
-%------------Burst+Trace-----------%
-% figure('renderer','zbuffer','visible','off','Position', [0 0 screen_size(3) screen_size(4) ])
+%% Subplot 3: Set of Peaks with Bursts Nearby
+figure;
 NumSecs = 6;
-WhichTraces = 15:18;
-[WhichBursts,~,ib]=unique(cell2mat(bi(WhichTraces)));
-WhichBursts = WhichBursts(find(arrayfun(@(x) sum(ib==x),unique(ib))==numel(WhichTraces)));
-WhichBurst = WhichBursts(randi(numel(WhichBursts),1));
-RasterPlotLineTrace(DataSet{k}.Trim.t,DataSet{k}.Trim.ic,DataSet{k}.Trim.bs(WhichBurst)-0.1*NumSecs*12000,DataSet{k}.Trim.bs(WhichBurst)+NumSecs*12000,DataSet{k}.dfTraces(:,WhichTraces)',DataSet{k}.dfTime.*12000);
-set(gca,'PlotBoxAspectRatio',[1,1,1]);
-%-------------------------%
+%----Set of Traces to plot----%
+% WhichTraces = 1:10;
+%----Which Peaks to Plot----%
+% write code for finding peaks at the same time
 
+%---Select Random Set of Traces around a Random Burst---%
+% Find Traces Which Have Peaks around the Same time
+[WhichTraces,start,stop] = CalcBestTrio(pi(1:10),DataSet{k}.dfTraces,DataSet{k}.dfTime,NumSecs,DataSet{k}.fs);
+RasterPlotLineTrace(DataSet{k}.Trim.t,DataSet{k}.Trim.ic,start,stop,DataSet{k}.dfTraces(:,WhichTraces)',DataSet{k}.dfTime.*12000);
+set(gca,'PlotBoxAspectRatio',[1,1,1]);
 %% Subplot 4: Superbursts and Traces
-%------------SB+Trace-----------%
+figure;
 NumSecs = 75;
-WhichTraces = 15:18;
-[WhichBursts,~,ib]=unique(cell2mat(SB_bi(WhichTraces)));
-WhichBurst = WhichBursts(randi(numel(WhichBursts),1));
-RasterPlotLineTrace(DataSet{k}.t,DataSet{k}.ic,DataSet{k}.sbs(WhichBurst)-0.1*NumSecs*12000,DataSet{k}.sbs(WhichBurst)+NumSecs*12000,DataSet{k}.dfTraces(:,WhichTraces)',DataSet{k}.dfTime.*12000);
+%----Set of Traces to plot----%
+% WhichTraces = 1:10;
+%----Which Peaks to Plot----%
+% write code for finding peaks at the same time
+
+[WhichTraces,start,stop] = CalcBestTrio(SB_pi,DataSet{k}.dfTraces,DataSet{k}.dfTime,NumSecs,DataSet{k}.fs);
+RasterPlotLineTrace(DataSet{k}.t,DataSet{k}.ic,start,stop,DataSet{k}.dfTraces(:,WhichTraces)',DataSet{k}.dfTime.*12000);
 set(gca,'PlotBoxAspectRatio',[1,1,1]);
-%-------------------------%
-
-%% Subplot 5: No bursts but Traces
-
-%------------NoBurst+Trace-----------%
-numbers=[];
-pkidx=[];
-window=86;
-traces = zscore(DataSet{k}.dfTraces);
-for i=1:110
-    if ~isempty(Nob_pi{i})
-        numbers=[numbers;ones(numel(Nob_pi{i}),1).*i];
-        pkidx = [pkidx;Nob_pi{i}];
+%% Subplot 5: Set of Peaks Far from Bursts
+figure;
+NumSecs = 15;
+%----Set of Traces to plot----%
+% WhichTraces = 1:10;
+%----Which Peaks to Plot----%
+% write code for finding peaks at the same time
+[WhichTraces,start,stop] = CalcBestTrio(Nob_pi,DataSet{k}.dfTraces,DataSet{k}.dfTime,NumSecs,DataSet{k}.fs);
+RasterPlotLineTrace(DataSet{k}.Trim.t,DataSet{k}.Trim.ic,start,stop,DataSet{k}.dfTraces(:,WhichTraces)',DataSet{k}.dfTime.*12000);
+set(gca,'PlotBoxAspectRatio',[1,1,1]);
+% could be some issues with non detected bursts or strong interburst
+% activity.
+%% Subplot 6: Set of Bursts with no Peaks
+figure;
+NumSecs = 6;
+[bursts,~,ix]=unique(cell2mat(cellfun(@(x) unique(x),No_bi,'UniformOutput',0)));
+n=histc(ix,unique(ix));
+[~,WhichBurst]=max(n);
+WhichBurst = bursts(ix(WhichBurst));
+TracesSet=find(cellfun(@(x) sum(x==WhichBurst)>0,No_bi));
+WhichTraces = TracesSet(randperm(numel(TracesSet),3));
+RasterPlotLineTrace(DataSet{k}.Trim.t,DataSet{k}.Trim.ic,DataSet{k}.Trim.bs(WhichBurst)-0.1*NumSecs*12000,DataSet{k}.Trim.bs(WhichBurst)+NumSecs*12000,DataSet{k}.dfTraces(:,WhichTraces)',DataSet{k}.dfTime.*12000);
+%% Subplot 7: Bar chart percentage of occurence
+figure;
+numBI = numel(unique(cell2mat(bi)))./numel(DataSet{k}.bs); % Percentage of bursts with a corresponding calcium increase
+temp=[];
+for i=1:size(Nob_pi,2),
+    if ~isempty(Nob_pi{i}),
+        temp = [temp;unique(Nob_pi{i})];
     end
 end
-peaks = [numbers,pkidx];
-for i=1:size(peaks,1)
-    peaks(i,3)=traces(pkidx(i),numbers(i));
-end
-peaks = sortrows(peaks,2);
+numNoB = numel(temp)./numel(cell2mat(cellfun(@(x) unique(x),peaks,'UniformOutput',0)')); % Percentage of calcium increases without a corresponding burst
+numSB = numel(unique(cell2mat(SB_bi)))./numel(DataSet{k}.sbs); % Percentage of superbursts with a corresponding calcium increase
+bar([numBI,numNoB,numSB,1-numBI]);
+set(gca,'XTickLabel',{'Bursts-Ca','Ca-No Bursts','SB-Ca','Bursts-No Ca'});
+%% Subplot 8: Probability a ROI responds to a network event
 
-combs = VChooseK(1:size(peaks,1),3);
-c1 = combs(:,1);
-c2 = combs(:,2);
-c3 = combs(:,3);
-p1a = peaks(c1,1);
-p2a = peaks(c2,1);
-p3a = peaks(c3,1);
-p1b = peaks(c1,2);
-p2b = peaks(c2,2);
-p3b = peaks(c3,2);
-p1c = peaks(c1,3);
-p2c = peaks(c2,3);
-p3c = peaks(c3,3);
-c1 =zeros(numel(combs(:,1)),1);
-c2 =zeros(numel(combs(:,1)),1);
-c3 =zeros(numel(combs(:,1)),1);
-parfor i=1:numel(c1)
-    c1(i) = numel(unique([p1a(i),p2a(i),p3a(i)]));
-    temp1  = sort([p1b(i),p2b(i),p3b(i)]);
-    c2(i) = temp1(end) - temp1(1);
-    c3(i) = median([p1c(i),p2c(i),p3c(i)])/(max([p1c(i),p2c(i),p3c(i)])-min([p1c(i),p2c(i),p3c(i)]));
-end
-
-get3 = find(c1==3);
-getclose = find(c2<window);
-gethigh = find(c3>5);
-
-plot(c2(getclose),c3(getclose),'.')
-runIntersect = mintersect(get3,getclose,gethigh);
-candidate = find(max(c3(runIntersect))==c3);
-WhichTraces= peaks(combs(candidate,:),1);
-start = DataSet{k}.dfTime(floor(median(peaks(combs(candidate,:),2)))-ceil(window/2))*12000;
-stop = DataSet{k}.dfTime(floor(median(peaks(combs(candidate,:),2)))+ceil(window))*12000;
-RasterPlotLineTrace(DataSet{k}.Trim.t,DataSet{k}.Trim.ic,start,stop,traces(:,WhichTraces)',DataSet{k}.dfTime.*12000);
-set(gca,'PlotBoxAspectRatio',[1,1,1]);
-%-------------------------%
-
-
-%% Subplot 6: Bursts but No Traces
-%------------Burst+NoTrace-----------%
-NumSecs = 6;
-WhichTraces = 15:18;
-WhichBursts = NoT_bi;
-WhichBurst = WhichBursts(randi(numel(WhichBursts),1));
-RasterPlotLineTrace(DataSet{k}.Trim.t,DataSet{k}.Trim.ic,DataSet{k}.Trim.bs(WhichBurst)-0.1*NumSecs*12000,DataSet{k}.Trim.bs(WhichBurst)+NumSecs*12000,DataSet{k}.dfTraces(:,WhichTraces)',DataSet{k}.dfTime.*12000);
-set(gca,'PlotBoxAspectRatio',[1,1,1]);
-
-%-------------------------%
-
-%% Subplot 7: Bar chart percentage of occurence
-% pi - bursts and traces which co-occur
-% Nob_pi - traces peaks which occur away from bursts
-% SB_pi - superbursts and traces which co-occur
-% NoT_bi - bursts which occur without traces
-
-bar([numel(cell2mat(pi')),sum(cellfun(@(x) numel(x),Nob_pi)),sum(cellfun(@(x) numel(x),SB_pi)),numel(NoT_bi)]);

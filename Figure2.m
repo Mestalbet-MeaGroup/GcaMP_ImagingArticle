@@ -22,10 +22,6 @@ end
 figure;
 PeakTypeBurst = PeakTypeBurst(:,ranks>1);
 time = [0:size(PeakTypeBurst,1)-1]./DataSet{k}.fs;
-% range = 40:90;
-% for j = 1:size(PeakTypeBurst,2)
-%     latency(:,j) = trapz(time(range),zscore(PeakTypeBurst(range,j))+abs(min(zscore(PeakTypeBurst(range,j)))));
-% end
 for j = 1:size(PeakTypeBurst,2)
     temp = PeakTypeBurst(:,j)./max(PeakTypeBurst(:,j));
     newpk(:,j)=temp;
@@ -33,7 +29,6 @@ for j = 1:size(PeakTypeBurst,2)
     stop = find(temp(start:end)<mean(temp),1,'First')+start;
     range = start:stop;
     if ~isempty(range)
-        %         latency(j) = trapz(time(range),temp(range)+abs(min(temp(range))));
         latency(j) = numel(range);
     else
         latency(j)=nan;
