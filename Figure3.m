@@ -61,7 +61,7 @@ end
 PlotAstroTracesWithRaster(DataSet{k}.dfTraces',DataSet{k}.dfTime,DataSet{k}.Trim.t,DataSet{k}.Trim.ic);
 
 %% Subplot 3: Set of Peaks with Bursts Nearby
-figure;
+figure('color','white');
 NumSecs = 6;
 %----Set of Traces to plot----%
 % WhichTraces = 1:10;
@@ -73,8 +73,10 @@ NumSecs = 6;
 [WhichTraces,start,stop] = CalcBestTrio(pi(1:10),DataSet{k}.dfTraces,DataSet{k}.dfTime,NumSecs,DataSet{k}.fs);
 RasterPlotLineTrace(DataSet{k}.Trim.t,DataSet{k}.Trim.ic,start,stop,DataSet{k}.dfTraces(:,WhichTraces)',DataSet{k}.dfTime.*12000);
 set(gca,'PlotBoxAspectRatio',[1,1,1]);
+% export_fig('BurstWithTrace.eps','-r600');
+% close all;
 %% Subplot 4: Superbursts and Traces
-figure;
+figure('color','white');
 NumSecs = 75;
 %----Set of Traces to plot----%
 % WhichTraces = 1:10;
@@ -85,7 +87,7 @@ NumSecs = 75;
 RasterPlotLineTrace(DataSet{k}.t,DataSet{k}.ic,start,stop,DataSet{k}.dfTraces(:,WhichTraces)',DataSet{k}.dfTime.*12000);
 set(gca,'PlotBoxAspectRatio',[1,1,1]);
 %% Subplot 5: Set of Peaks Far from Bursts
-figure;
+figure('color','white');
 NumSecs = 15;
 %----Set of Traces to plot----%
 % WhichTraces = 1:10;
@@ -97,7 +99,7 @@ set(gca,'PlotBoxAspectRatio',[1,1,1]);
 % could be some issues with non detected bursts or strong interburst
 % activity.
 %% Subplot 6: Set of Bursts with no Peaks
-figure;
+figure('color','white');
 NumSecs = 6;
 [bursts,~,ix]=unique(cell2mat(cellfun(@(x) unique(x),No_bi,'UniformOutput',0)));
 n=histc(ix,unique(ix));
@@ -107,7 +109,7 @@ TracesSet=find(cellfun(@(x) sum(x==WhichBurst)>0,No_bi));
 WhichTraces = TracesSet(randperm(numel(TracesSet),3));
 RasterPlotLineTrace(DataSet{k}.Trim.t,DataSet{k}.Trim.ic,DataSet{k}.Trim.bs(WhichBurst)-0.1*NumSecs*12000,DataSet{k}.Trim.bs(WhichBurst)+NumSecs*12000,DataSet{k}.dfTraces(:,WhichTraces)',DataSet{k}.dfTime.*12000);
 %% Subplot 7: Bar chart percentage of occurence
-figure;
+figure('color','white');
 numBI = numel(unique(cell2mat(bi)))./numel(DataSet{k}.bs); % Percentage of bursts with a corresponding calcium increase
 temp=[];
 for i=1:size(Nob_pi,2),

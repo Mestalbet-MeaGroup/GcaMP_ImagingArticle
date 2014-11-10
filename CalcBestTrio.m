@@ -6,11 +6,11 @@ numbers=[];
 pkidx=[];
 for i=1:size(pi,2)
     if ~isempty(pi{i})
-        numbers=[numbers;ones(numel(pi{i}),1).*i];
-        pkidx = [pkidx;pi{i}];
+        numbers=[numbers,ones(1,numel(pi{i})).*i];
+        pkidx = [pkidx,pi{i}];
     end
 end
-peaks = [numbers,pkidx];
+peaks = [numbers;pkidx]';
 for i=1:size(peaks,1)
     peaks(i,3)=traces(pkidx(i),numbers(i));
 end

@@ -1,5 +1,6 @@
 %% Load Data
-load('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2_ManSBs_withTrim_noBSinSBS.mat');
+% load('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2_ManSBs_withTrim_noBSinSBS.mat');
+load('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2_ManSBs_withTrim_noBSinSBS_fixedBursts.mat')
 k=6;
 
 %%
@@ -83,6 +84,7 @@ for i=1:numlevs-1
 end
 
 %% Subplot 2: Amplitude versus offset
+figure('Color','white');
 subplot = @(m,n,p) subtightplot (m, n, p, [0.005 0.005], [0.05 0.05], [0.05 0.05]);
 subplot(6,6,2:6)
 hist(ampvDist(:,1),100);
@@ -97,7 +99,7 @@ subplot(6,6,[7,13,19,25,31])
 hist(ampvDist(:,2),100);
 axis tight;
 xlim([0.5,18]);
-set(gca,'YTick',[],'YDir','reverse','XDir','reverse');
+set(gca,'YTick',[],'YDir','reverse','XDir','reverse','TickDir','out','TickLength',[0.005,0.005]);
 box off;
 view([90,90]);
 set(allchild(gca),'FaceColor',[0 0 0]);
@@ -111,14 +113,14 @@ view([az,el]);
 set(get(gca,'child'),'FaceColor','interp','CDataMode','auto');
 xlim([0,35]);
 ylim([0.5,18]);
-set(gca,'YTick',[]);
+set(gca,'YTick',[],'TickDir','Out','TickLength',[0.005,0.005]);
 set(gca,'FontSize',18);
 
 %-----with log scale-----%
-hist3(ampvDist,'edges',{logspace(0+eps,max(ampvDist(:,2)),100),linspace(0,max(ampvDist(:,2)),100)});
-set(get(gca,'child'),'FaceColor','interp','CDataMode','auto');
-az=0;%35
-el=90;%32
-view([az,el]);
-set(gca,'YTick',[],'XScale','log');
-xlim([1,100]);
+% hist3(ampvDist,'edges',{logspace(0+eps,max(ampvDist(:,2)),100),linspace(0,max(ampvDist(:,2)),100)});
+% set(get(gca,'child'),'FaceColor','interp','CDataMode','auto');
+% az=0;%35
+% el=90;%32
+% view([az,el]);
+% set(gca,'YTick',[],'XScale','log');
+% xlim([1,100]);

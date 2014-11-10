@@ -48,7 +48,7 @@ set(gca,'YColor','w','XColor','w');
 ylabel('Regions of Interest','color','k');
 % Overlay Firing Rate
 hold on;
-patchline(trtime,zscore(mean(fr,2)),'linestyle','-','edgecolor','r','linewidth',25,'edgealpha',0.3);
+patchline(trtime,zscore(mean(fr,2)),'linestyle','-','edgecolor','r','linewidth',5,'edgealpha',0.3);
 hold off;
 set(gca,'FontSize',18);
 box on;
