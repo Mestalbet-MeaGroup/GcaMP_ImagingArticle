@@ -158,8 +158,8 @@ ylabel('ratio of ROIs')
 
 figure;
 % optM = nsOPTBINS([AreaAmp1;AreaAmp2]);
-[hist,bins]=hist3([AreaAmp1;AreaAmp2]','edges',{linspace(0,max(AreaAmp1),20),linspace(0,max(AreaAmp2),20)});
-normhist = hist./trapz(bins{2},trapz(bins{1},hist));
+[histo,bins]=hist3([AreaAmp1;AreaAmp2]','edges',{linspace(0,max(AreaAmp1),20),linspace(0,max(AreaAmp2),20)});
+normhist = histo./trapz(bins{2},trapz(bins{1},histo));
 xo = repmat(bins{1}',1,size(normhist,2));
 yo = repmat(bins{2},size(normhist,1),1);
 s = surface(xo,yo,normhist);
@@ -180,6 +180,8 @@ set(c,'TickDir','out');
 figure;
 subplot = @(m,n,p) subtightplot (m, n, p, [0.01 0.02], [0.05 0.05], [0.05 0.05]);
 numlevs=4;
+ampsC  = nanmax(CutoutNear,[],2);
+ampsF  = nanmax(CutoutFar,[],2);
 ranksC = otsu(ampsC,numlevs);
 ranksF = otsu(ampsF,numlevs);
 for i=1:numlevs-1
