@@ -2,7 +2,7 @@
 
 %---Load Data---%
 load('CorrDistributions2.mat','MaxCosSim');
-load('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2.mat');
+load('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2_ManSBs_withTrim_noBSinSBS_fixedBursts.mat')
 
 %%
 %---Figure 1a: Max Correlation---%

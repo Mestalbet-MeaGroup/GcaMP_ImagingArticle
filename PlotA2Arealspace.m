@@ -25,8 +25,10 @@ cdatao = real2rgb(image,nodecolors,[0,max(noderank)]);
 xo = repmat(1:size(mask,2),size(mask,1),1);
 yo = repmat([1:size(mask,1)]',1,size(mask,2));
 zo = zeros(size(mask));
-s = surface(xo,yo,zo,cdatao,'EdgeColor','none','FaceColor','texturemap','CDataMapping','direct'); axis('tight');
-set(gca,'FontSize',18);
+s = surface(xo,yo,zo,cdatao,'EdgeColor','none','FaceColor','texturemap','CDataMapping','direct'); 
+axis('tight');
+set(gca,'FontSize',18,'TickDir','out','PlotBoxAspectRatio',[size(mask,2),size(mask,1),1]);
+
 % cvec = [0,0,0;nodecolors(2:end,:)];
 colormap([0,0,0;flip(nodecolors(2:end,:),1)]);
 c = colorbar('Location','northoutside');
@@ -34,7 +36,7 @@ cticks = linspace(0,1,size(nodecolors,1));
 set(c,'Ticks',[0,cticks(2),cticks(end-1)],'TickLabels',[0,1,max(noderank)]);
 ylabel(c,'Page Rank')
 caxis(caxis);
-set(gca,'FontSize',18);
+set(gca,'FontSize',18,'TickDir','out');
 
 centers  = cell2mat(arrayfun(@(x) x.Centroid, regionprops(~mask,'Centroid'),'uniformoutput',0));
 [avals,rank]=sort(round(avals*10000)/10000);
@@ -50,7 +52,8 @@ colors = jet(max(rank)-min(rank)+1);
 colors = colors(rank-min(rank)+1, :);
 %--Transparent Lines---%
 for i=1:numel(a1)
-    l = patchline([xposa1(i),xposa2(i)],[yposa1(i),yposa2(i)],'linestyle','-','edgecolor',colors(i,:),'linewidth',15,'edgealpha',0.5);
+%     l = patchline([xposa1(i),xposa2(i)],[yposa1(i),yposa2(i)],'linestyle','-','edgecolor',colors(i,:),'linewidth',5,'edgealpha',0.5);
+      l = line([xposa1(i),xposa2(i)],[yposa1(i),yposa2(i)],'linestyle','-','Color',colors(i,:),'linewidth',2);
 end
 set(gca,'FontSize',18);
 %--Solid Lines---%
@@ -83,5 +86,5 @@ ctick = 0:(1/numel(avals))/2:1;
 ctick=ctick(2:2:end-1);
 set(c1,'Ticks',[ctick(1),ctick(end)],'TickLabels',[avals(1),avals(end)]);
 ylabel(c1,'Correlation')
-set(gca,'FontSize',18);
+set(gca,'FontSize',18,'TickDir','out');
 end

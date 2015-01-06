@@ -6,7 +6,10 @@ peaks = DataSet{k}.dfTime(cell2mat(peakIndex'));
 distances = bsxfun(@minus,peaks',DataSet{k}.bs./12000);
 closeby = zeros(size(distances));
 closeby = abs(distances)<1;
-numbs = sum(DataSet{k}.bs<=peaks(end)*12000);
+numbs = sum(DataSet{k}.bs<=max(peaks)*12000);
+validBS = find( (DataSet{k}.bs<=max(peaks)*12000) & (DataSet{k}.bs>=min(peaks)*12000) );
+% closeby = closeby(:,validBS);
+numbs=numel(validBS);
 numBI = sum(sum(closeby,1)>=1)/numbs;
 
 %---Reference Peaks to ROI---%
@@ -25,7 +28,8 @@ for i=1:size(closeby,2)
 end
 
 for i=1:size(peaksperROI,2)
-    PeaksWithBursts{i} = find(sum(closeby(peaksperROI{i},:),1)>=1);
+%     PeaksWithBursts{i} = find(sum(closeby(peaksperROI{i},:),1)>=1);
+      [PeaksWithBursts{i},~] = find(closeby(peaksperROI{i},:)==1);
 end
 
 %%
@@ -59,6 +63,7 @@ end
 
 far = zeros(size(distances));
 far = abs(distances)<=3;
+
 numNoB = sum(sum(far,2)==0)/numel(peaks);
 
 BurstsNoPeaks=cell(1,size(far,2));

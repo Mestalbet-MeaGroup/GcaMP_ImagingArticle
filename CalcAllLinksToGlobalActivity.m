@@ -218,6 +218,7 @@ stem(xdata{1},ydata{1},...
     'MarkerSize',5,...
     'Color',[0 0.447 0.741]);
 line(xdata{2},ydata{2});
+line(xdata{2},ones(size(xdata{2}))*1.96,'LineStyle','--','Color','r');
 ylabel('PairWise A2N [z-score]');
 xlabel('Astrocyte to Neural Mean Field (average firing rate)');
 axis tight;
@@ -225,46 +226,68 @@ grid on
 set(gca,'TickDir','out');
 set(gca,'FontSize',18);
 
-% Now brush all the positive residuals and copy them into a N*2 sized array
-% named residual.
-
+winsize = cellfun(@(x) mean(diff(x.dfTime)),DataSet);
 %Find the group of residuals these are; 
-
-BestAstros = find(ismember(a2n1,residuals(find(residuals(:,2)>=2),1)));
+residuals = xdata{1}(find(ydata{1}>1.96));
+BestAstros = find(ismember(a2n1,residuals));
 BestNeuros(1,:) = nindex(BestAstros);
 BestNeuros(2,:) = cults(BestAstros);
-HIBastros = find(ismember(a2n1,highinboth(:,1)));
-HIBn(1,:) = nindex(HIBastros);
-HIBn(2,:) = cults(HIBastros);
-HIBn(3,:) =  arrayfun(@(x,y) nanmean(DataSet{x}.FR(:,y)),HIBn(2,:),HIBn(1,:));
-
-LGastros = find(ismember(a2n1,higha2nlowa2gfr(:,1)));
-LGn(1,:) = nindex(LGastros);
-LGn(2,:) = cults(LGastros);
-LGn(3,:) =  arrayfun(@(x,y) nanmean(DataSet{x}.FR(:,y)),LGn(2,:),LGn(1,:));
-
-
-
-BestNeuros(3,:) =  arrayfun(@(x,y) nanmean(DataSet{x}.FR(:,y)),BestNeuros(2,:),BestNeuros(1,:));
+BestNeuros(3,:) =  arrayfun(@(x,y) nanmean(DataSet{x}.FR(:,y))/winsize(x),BestNeuros(2,:),BestNeuros(1,:));
 BestNeuros(4,:) =  arrayfun(@(x,y) nanmean(MaxCosSim{x}(y,size(DataSet{x}.ic,2)+1:end)),BestNeuros(2,:),BestNeuros(1,:));
 BestNeuros(5,:) = arrayfun(@(x,y) neuro{x}(y),BestNeuros(2,:),BestNeuros(1,:));
 
-% otherFR =  arrayfun(@(x,y) nanmean(nanmax(DataSet{x}.FR(:,setdiff(1:size(DataSet{x}.FR,2),y)))),BestNeuros(2,:),BestNeuros(1,:));
-% otherCorr2A=  arrayfun(@(x,y) nanmean(nanmax(MaxCosSim{x}(setdiff(1:size(DataSet{x}.FR,2),y),size(DataSet{x}.ic,2)+1:end))),BestNeuros(2,:),BestNeuros(1,:));
-otherFR =  arrayfun(@(x,y) nanmean(nanmean(DataSet{x}.FR(:,setdiff(1:size(DataSet{x}.FR,2),y)))),BestNeuros(2,:),BestNeuros(1,:));
-otherCorr2A=  arrayfun(@(x,y) nanmean(nanmean(MaxCosSim{x}(setdiff(1:size(DataSet{x}.FR,2),y),size(DataSet{x}.ic,2)+1:end))),BestNeuros(2,:),BestNeuros(1,:));
-otherCorr2GFR = arrayfun(@(x,y) nanmean(neuro{x}(setdiff(1:size(DataSet{x}.FR,2),y))),BestNeuros(2,:),BestNeuros(1,:));
+% HIBastros = intersect(find(a2n1>=mean(a2n1)+std(a2n1)),find(yData>=mean(yData)+2*std(yData)));
+HIBastros = intersect(find(a2n1>=0.3),find(yData>=0.4));
 
-figure;
+% HIBastros = find(ismember(a2n1,highinboth));
+HIBn(1,:) = nindex(HIBastros);
+HIBn(2,:) = cults(HIBastros);
+HIBn(3,:) = arrayfun(@(x,y) nanmean(DataSet{x}.FR(:,y))/winsize(x),HIBn(2,:),HIBn(1,:));
+HIBn(4,:) = arrayfun(@(x,y) nanmean(MaxCosSim{x}(y,size(DataSet{x}.ic,2)+1:end)),HIBn(2,:),HIBn(1,:));
+HIBn(5,:) = arrayfun(@(x,y) neuro{x}(y),HIBn(2,:),HIBn(1,:));
+
+% LGastros = find(ismember(a2n1,residuals));
+% LGn(1,:) = nindex(LGastros);
+% LGn(2,:) = cults(LGastros);
+% LGn(3,:) = arrayfun(@(x,y) nanmean(DataSet{x}.FR(:,y)),LGn(2,:),LGn(1,:));
+
+% otherFR =  arrayfun(@(x,y) nanmean(nanmean(DataSet{x}.FR(:,setdiff(1:size(DataSet{x}.FR,2),y))))/winsize(x),BestNeuros(2,:),BestNeuros(1,:));
+% otherCorr2A=  arrayfun(@(x,y) nanmean(nanmean(MaxCosSim{x}(setdiff(1:size(DataSet{x}.FR,2),y),size(DataSet{x}.ic,2)+1:end))),BestNeuros(2,:),BestNeuros(1,:));
+% otherCorr2GFR = arrayfun(@(x,y) nanmean(neuro{x}(setdiff(1:size(DataSet{x}.FR,2),y))),BestNeuros(2,:),BestNeuros(1,:));
+otherFR     =  arrayfun(@(x) nanmean(nanmean(DataSet{x}.FR(:,setdiff(1:size(DataSet{x}.FR,2),unique(BestNeuros(1,BestNeuros(2,:)==x))))))/winsize(x),1:9);
+otherCorr2A =  arrayfun(@(x) nanmean(nanmean(MaxCosSim{x}(setdiff(1:size(DataSet{x}.FR,2),unique(BestNeuros(1,BestNeuros(2,:)==x))),size(DataSet{x}.ic,2)+1:end))),1:9);
+otherCorr2GFR = arrayfun(@(x,y) nanmean(neuro{x}(setdiff(1:size(DataSet{x}.FR,2),unique(BestNeuros(1,BestNeuros(2,:)==x))))),1:9);
+
+%---Figure of Neurons which are in high pairwise correlation with astro's but low correlation with the GFR---%
+figure('units','normalized','outerposition',[0 0 1 1]);
 hold on;
-h = bar([mean(BestNeuros(3,:)),mean(otherFR);mean(BestNeuros(4,:)),mean(otherCorr2A);mean(BestNeuros(5,:)),mean(otherCorr2GFR)]);
-w = get(h(1),'BarWidth');
-bx = get(h(1),'XData');
-errorbar([bx(1)-w/(numel(bx)*2),bx(1)+w/(numel(bx)*2);bx(2)-w/(numel(bx)*2),bx(2)+w/(numel(bx)*2);bx(3)-w/(numel(bx)*2),bx(3)+w/(numel(bx)*2)],...
-         [mean(BestNeuros(3,:)),mean(otherFR);mean(BestNeuros(4,:)),mean(otherCorr2A);mean(BestNeuros(5,:)),mean(otherCorr2GFR)],...
-         [std(BestNeuros(3,:)),std(otherFR);std(BestNeuros(4,:)),std(otherCorr2A);std(BestNeuros(5,:)),std(otherCorr2GFR)],'.')
-set(gca,'XTickLabel',{'','Mean FR','','Max Corr to Astro','','Corr to GFR'});
-legend({'High Residuals','All Others'});
+h = bar([1,2,3],[mean(BestNeuros(3,:)),mean(otherFR),mean(HIBn(3,:))],1);
+errorbar([1,2,3],...
+         [mean(BestNeuros(3,:)),mean(otherFR),mean(HIBn(3,:))],...
+         [std(BestNeuros(3,:)),std(otherFR),std(HIBn(3,:))],'.k');
+set(gca,'XTick',2,'XTickLabel',{'Mean FR'},'TickDir','out','YAxisLocation','left');
+ylabel('<firing rate> [spikes*sec^-1]');
+xlim([0,8]);
+ylim([0,14]);
 set(gca,'FontSize',18);
-axis tight;
-xlim([0.5,3.5]);
+
+ha = axes('YAxisLocation','right','Color','none');
+hold on;
+h = bar(ha,[5,6,7],[mean(BestNeuros(5,:)),mean(otherCorr2GFR),mean(HIBn(5,:))],1);
+errorbar([5,6,7],...
+         [mean(BestNeuros(5,:)),mean(otherCorr2GFR),mean(HIBn(5,:))],...
+         [std(BestNeuros(5,:)),std(otherCorr2GFR),std(HIBn(5,:))],'.k');
+xlim([0,8]);
+set(gca,'XTick',6,'XTickLabel',{'cross-correlation to GFR'},'TickDir','out');
+ylabel(ha,'normalized cross-correlation'); 
+set(gca,'FontSize',18);
+% export_fig('Fig_ResidualsCorrFR.eps','-r600');
+%% Statistics
+g1 = [ones(size(BestNeuros(3,:))),ones(size(otherFR))*2,ones(size(HIBn(3,:)))*3]; %high res, all others, high both
+g2 = [BestNeuros(2,:),1:9,HIBn(2,:)]; %which culture
+frs = [BestNeuros(3,:),otherFR,HIBn(3,:)];
+[~,~,stats] = anovan(frs,{g1,g2});
+[frStat,~,~] = multcompare(stats,'Dimension',1);
+corrs = [BestNeuros(5,:),otherCorr2GFR,HIBn(5,:)];
+[~,~,stats] = anovan(corrs,{g1,g2});
+[corrStat,~,~] = multcompare(stats,'Dimension',1);

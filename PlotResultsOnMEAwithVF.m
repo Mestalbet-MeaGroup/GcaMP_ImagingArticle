@@ -17,7 +17,9 @@ function PlotResultsOnMEAwithVF(e1,e2,value,varargin)
 % To Plot both A2N and N2N:
 % PlotResultsOnMEA(e1,e2,eval,mask,ch,a1,a_e2,aval);
 % f = figure;
-
+% Example call:
+% [e1,e2,eval,a1,a_e2,aval,ch,mask]=ParseConnectionValuesWithVF(6,500);
+% PlotResultsOnMEAwithVF(e1,e2,eval,mask,ch,a1,a_e2,aval);
 %---Load Mea Image Data and Map---%
 load('MeaMapPlot.mat','MeaImage','MeaMap');
 MeaMap = rot90(MeaMap,-1);
@@ -45,7 +47,9 @@ plot(centers(:,2),centers(:,1), 'o',...
     'MarkerFaceColor',[1 1 1]);
 xlim([-100,3100]);
 ylim([-100,3100]);
-set(gca,'Color','black');
+set(gca,'XTick',[-100:250:3100],'XTickLabel',[-100:250:3100]+100);
+set(gca,'YTick',[-100:250:3100],'YTickLabel',[-100:250:3100]+100);
+set(gca,'Color','black','TickDir','out');
 set(gca,'PlotBoxAspectRatio',[1,1,1]);
 set(gca,'FontSize',18);
 
@@ -88,7 +92,9 @@ if size(varargin,2)>2
     [~,~,allv_index] = unique(allvalsN);
     sources = e1;
     sources=sources(rank);
+   
     rank = rank(allv_index);
+    sN=allvalsN;
     colorsN = cbrewer('seq','Purples',numel(sources));
     
     for i=1:numel(e1)
@@ -103,6 +109,7 @@ if size(varargin,2)>2
     end
     [allvals,rank]=sort(avals);
     [~,~,allv_index] = unique(allvals);
+    sA = allvals;
     sources = a1;
     sources=sources(rank);
     rank = rank(allv_index);
@@ -118,17 +125,21 @@ if size(varargin,2)>2
 %         al = line([x1,xpos(ax2,ay2)],[y1,ypos(ax2,ay2)],'color',score,'linewidth',3);
         uistack(al,'top');
     end
+    set(gca,'TickDir','out');
     %--Colorbar Neuros---%
     hn  = axes('visible','off');
     colormap(hn,colorsN);
     c = colorbar('westoutside');
-    ctick = 0:(1/numel(allvalsN))/2:1;
-    ctick=ctick(2:2:end-1);
-    if numel(ctick)>100
-        set(c,'Ticks',[ctick(1),ctick(floor(end/2)),ctick(end)],'TickLabels',round([allvalsN(1),allvalsN(floor(end/2)),allvalsN(end)].*100)./100);
-    else
-        set(c,'Ticks',ctick(1:2:end),'TickLabels',allvalsN(1:2:end));
-    end
+    set(gca,'TickDir','out');
+    caxis([floor(min(sN)*10)/10,ceil(max(sN)*10)/10]);
+%     ctick = 0:(1/numel(allvalsN))/2:1;
+%     ctick=ctick(2:2:end-1);
+%     if numel(ctick)>100
+% %         set(c,'Ticks',[ctick(1),ctick(floor(end/2)),ctick(end)],'TickLabels',round([allvalsN(1),allvalsN(floor(end/2)),allvalsN(end)].*100)./100);
+%         set(c,'Ticks',[0,round(ctick(floor(end/2))*10)/10,max(ceil(ctick))],'TickLabels',[0,round(ctick(floor(end/2))*10)/10,max(ceil(ctick))]);
+%     else
+%         set(c,'Ticks',ctick(1:2:end),'TickLabels',allvalsN(1:2:end));
+%     end
     caxis(caxis);
     set(gca,'FontSize',18);
     
@@ -136,13 +147,15 @@ if size(varargin,2)>2
     ha  = axes('visible','off');
     colormap(ha,colors);
     c = colorbar;
-    ctick = 0:(1/numel(allvals))/2:1;
-    ctick=ctick(2:2:end-1);
-    if numel(ctick)>100
-        set(c,'Ticks',[ctick(1),ctick(floor(end/2)),ctick(end)],'TickLabels',round([allvals(1),allvals(floor(end/2)),allvals(end)].*100)./100);
-    else
-        set(c,'Ticks',ctick(1:2:end),'TickLabels',allvals(1:2:end));
-    end
+    set(c,'TickDir','out');
+    caxis([floor(min(sA)*10)/10,ceil(max(sA)*10)/10]);
+%     ctick = 0:(1/numel(allvals))/2:1;
+%     ctick=ctick(2:2:end-1);
+%     if numel(ctick)>100
+%         set(c,'Ticks',[ctick(1),ctick(floor(end/2)),ctick(end)],'TickLabels',round([allvals(1),allvals(floor(end/2)),allvals(end)].*100)./100);
+%     else
+%         set(c,'Ticks',ctick(1:2:end),'TickLabels',allvals(1:2:end));
+%     end
     caxis(caxis);
     set(gca,'FontSize',18);
 end

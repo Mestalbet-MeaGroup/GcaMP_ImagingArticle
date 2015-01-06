@@ -1,7 +1,7 @@
 function loadcult(which)
 % global t ic mask traces time MaxCosSim
 load('CorrDistributions2.mat', 'MaxCosSim')
-load('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2.mat', 'DataSet')
+load('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2_ManSBs_withTrim_noBSinSBS_fixedBursts.mat', 'DataSet')
 t= DataSet{which}.t;
 ic= DataSet{which}.ic;
 mask = DataSet{which}.mask;

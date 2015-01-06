@@ -108,18 +108,18 @@ for i=1:9
 end
 
 %--A2N--%
-figure;
-xlimit = 4000;
-optM=[10,110];
-for i=1:9
-    subplot(3,3,i)
-    %     optM = a2nB{i};
-    a2n = [a2nd{i},abs(a2nL{i})]';
-    [~,bins]  = hist3([a2n(1,:)',a2n(2,:)'],'Edges',{linspace(min(a2n(1,:)),max(a2n(1,:)),optM(1)),linspace(min(a2n(2,:)),max(a2n(2,:)),optM(2))});
-    factor = Calc2DhistNormalization(DataSet{i}.channel,bins{1},MeaMap,size(a2n,2),'a2n');
-    Plot2DHist(a2n(1,:)',a2n(2,:)',optM(1),optM(2),xlimit,ylimit,factor,bins);
-    title(['A2N: Culture: ', num2str(DataSet{i}.culture),' Channel: ',num2str(DataSet{i}.channel)]);
-end
+    figure;
+    xlimit = 4000;
+    optM=[10,110];
+    for i=1:9
+        subplot(3,3,i)
+        %     optM = a2nB{i};
+        a2n = [a2nd{i},abs(a2nL{i})]';
+        [~,bins]  = hist3([a2n(1,:)',a2n(2,:)'],'Edges',{linspace(min(a2n(1,:)),max(a2n(1,:)),optM(1)),linspace(min(a2n(2,:)),max(a2n(2,:)),optM(2))});
+        factor = Calc2DhistNormalization(DataSet{i}.channel,bins{1},MeaMap,size(a2n,2),'a2n');
+        Plot2DHist(a2n(1,:)',a2n(2,:)',optM(1),optM(2),xlimit,ylimit,factor,bins);
+        title(['A2N: Culture: ', num2str(DataSet{i}.culture),' Channel: ',num2str(DataSet{i}.channel)]);
+    end
 
 %--N2N--%
 figure;
