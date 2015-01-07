@@ -1,11 +1,14 @@
 function [numBI,numNoB,numSB,PeaksWithBursts,BurstsWithPeaks,PeaksNoBursts,BurstsNoPeaks,PeaksWithSBs,SBsWithPeaks,peakIndex]=CalcBurstPeakOccurenceRate(DataSet,k);
 
-
+if isfield(DataSet{k},'sb_bs')
+    DataSet{k}.bs=sort([DataSet{k}.bs,DataSet{k}.sb_bs]);
+end
 [~,peakIndex,~]=CalcPeakStartEnd(DataSet{k}.dfTraces);
 peaks = DataSet{k}.dfTime(cell2mat(peakIndex'));
 distances = bsxfun(@minus,peaks',DataSet{k}.bs./12000);
 closeby = zeros(size(distances));
-closeby = abs(distances)<1;
+% closeby = abs(distances)<1;
+closeby = (distances<1)&(distances>0); %peaks that come after burststart
 numbs = sum(DataSet{k}.bs<=max(peaks)*12000);
 validBS = find( (DataSet{k}.bs<=max(peaks)*12000) & (DataSet{k}.bs>=min(peaks)*12000) );
 % closeby = closeby(:,validBS);
@@ -62,7 +65,8 @@ end
 
 
 far = zeros(size(distances));
-far = abs(distances)<=3;
+% far = abs(distances)<=3;
+far = (distances<=3)&(distances>0);
 
 numNoB = sum(sum(far,2)==0)/numel(peaks);
 

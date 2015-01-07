@@ -1,7 +1,9 @@
 %% Load Data
 fclose('all');clear all; close all;clc;
-load('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2_ManSBs_withTrim_noBSinSBS_fixedBursts.mat')
-load('BurstPeakOccurance.mat')
+% load('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2_ManSBs_withTrim_noBSinSBS_fixedBursts.mat')
+% load('BurstPeakOccurance.mat')
+load('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2_ManSBs_withTrim_noBSinSBS_fixedBursts_withSBbursts.mat')
+load('BurstPeakOccurance_withSBbursts_onlyforward.mat')
 %---Remove Culture 4 which has virtually no transients---%
 BurstsNoPeaks(4)=[];
 BurstsWithPeaks(4)=[];
@@ -15,7 +17,7 @@ PeaksWithBursts(4)=[];
 PeaksWithSBs(4)=[];
 SBsWithPeaks(4)=[];
 %%
-AvD = [];
+AvD = [];AvDcultNum=[];
 counter=1;cf=1;
 AreaAmp1=[];AreaAmp2=[];
 for k=1:size(DataSet,1)
@@ -25,6 +27,9 @@ for k=1:size(DataSet,1)
     pi  = peakIndex{k};
     pb  = PeaksWithBursts{k};
     pnb = PeaksNoBursts{k};
+    if isfield(DataSet{k},'sb_bs')
+        DataSet{k}.bs=sort([DataSet{k}.bs,DataSet{k}.sb_bs]);
+    end
     for i=1:size(pi,2)
         peaks = DataSet{k}.dfTime(pi{i});
         distances = bsxfun(@minus,peaks',DataSet{k}.bs./12000);
@@ -60,8 +65,8 @@ for k=1:size(DataSet,1)
                 cf=cf+1;
             end
         end
-          % for area vs. num pixels
-          AreaAmp2 = [AreaAmp2, max(trz)];
+        % for area vs. num pixels
+        AreaAmp2 = [AreaAmp2, max(trz)];
     end
     c = regionprops(~DataSet{k}.mask,'Area');
     AreaAmp1 = [AreaAmp1,[c.Area]];
@@ -69,8 +74,9 @@ for k=1:size(DataSet,1)
     
     temp=cell2mat(ampvDist');
     AvD = [AvD;sortrows(temp,1)];
+    AvDcultNum = [AvDcultNum;ones(size(temp,1),1).*k];
     
-  
+    
     
 end
 %% Find ROIs with only Far Peaks or Only Near Peaks or Both
@@ -82,7 +88,7 @@ for r=1:size(DataSet,1)
     c = regionprops(~DataSet{r}.mask,'PixelIdxList','Area');
     area = [c.Area];
     image=double(~DataSet{r}.mask);
-
+    
     NearCounts(r)    = numel(OnlyNear{r});
     FarCounts(r)     = numel(OnlyFar{r});
     NearFarCounts(r) = numel(NearFar{r});
@@ -99,15 +105,15 @@ for r=1:size(DataSet,1)
         image(c(NearFar{r}(i)).PixelIdxList)=4;
     end
     colors =[0,0,0; 1,1,1; 1,0,0; 0,0,1; 0,1,0];
-   
+    
     figure;
-%     s1 = subplot(1,2,1);
+    %     s1 = subplot(1,2,1);
     imshow(image+1,colors);
     set(gca,'YDir','normal');
     freezeColors;
     
     set(gca,'YDir','normal');
-%     figure;
+    %     figure;
     OnlyNearAreas = [OnlyNearAreas,area(OnlyNear{r})];
     OnlyFarAreas =  [OnlyFarAreas,area(OnlyFar{r})];
     NearFarAreas =  [NearFarAreas,area(NearFar{r})];
@@ -212,13 +218,12 @@ end
 
 %% Amplitude versus offset
 [~,bins]=hist3(AvD,[100,100]);
-ylow  = 0.5;
-yhigh = bins{2}(80);
-xlow  = 0.5;
+ylow  = 0;
+yhigh = bins{2}(100);
+xlow  = 0;
 xhigh = bins{1}(100);
 figure('Color','white');
 subplot = @(m,n,p) subtightplot (m, n, p, [0.005 0.005], [0.05 0.05], [0.05 0.05]);
-
 
 subplot(6,6,2:6)
 hist(AvD(:,1),100);
@@ -266,7 +271,7 @@ set(get(gca,'child'),'CDataMapping','scaled')
 grid off;
 set(gca,'TickDir','out','FontSize',9);
 hCbar = colorbar(gca);
-myscale = [nanmin(CData(:)),10^1,10^1.5,10^2,10^2.5,nanmax(CData(:))];
+myscale = [nanmin(CData(:)),10^1,10^1.5,10^2,nanmax(CData(:))];
 caxis([myscale(1),myscale(end)])
 set(hCbar,'YTick',myscale);
 set(hCbar,'YTickLabel',log10(myscale),'TickDir','out','FontSize',9);

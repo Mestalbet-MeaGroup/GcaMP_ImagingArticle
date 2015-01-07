@@ -1,4 +1,4 @@
-load('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2.mat');
+% load('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2.mat');
 parfor i=1:9
     t= DataSet{i}.t;
     ic= DataSet{i}.ic;

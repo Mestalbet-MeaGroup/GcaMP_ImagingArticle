@@ -1,5 +1,10 @@
-load('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2_ManSBs_withTrim_noBSinSBS_fixedBursts.mat');
-load('BurstPeakOccurance.mat');
+% load('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2_ManSBs_withTrim_noBSinSBS_fixedBursts.mat');
+% load('BurstPeakOccurance.mat');
+% load('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2_ManSBs_withTrim_noBSinSBS_fixedBursts_withSBbursts.mat');
+% load('BurstPeakOccurance_withSBbursts.mat');
+load('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2_ManSBs_withTrim_noBSinSBS_fixedBursts_withSBbursts.mat')
+load('BurstPeakOccurance_withSBbursts_onlyforward.mat')
+
 BurstsNoPeaks(4)=[];
 BurstsWithPeaks(4)=[];
 DataSet(4)=[];
