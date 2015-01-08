@@ -1,3 +1,4 @@
+fclose('all');clear all; close all;clc;
 % load('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2_ManSBs_withTrim_noBSinSBS_fixedBursts.mat');
 % load('BurstPeakOccurance.mat');
 % load('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2_ManSBs_withTrim_noBSinSBS_fixedBursts_withSBbursts.mat');
@@ -53,15 +54,25 @@ nrB = bs(y);
 nrBe = be(y);
 
 %---Calculate Distances between Bursts with/without Ca Response---%
-distances = bsxfun(@minus,rB',nrB); %no response bursts vs. yes response bursts
-distances = abs(distances);
-noRes=min(distances,[],2); % distance of no response bursts to nearest response burst
 
-distances = bsxfun(@minus,nrB',nrB); %yes response bursts vs. yes response bursts
-distances = abs(distances);
-distances = triu(distances,1)+tril(nan(size(distances)));
-Res=nanmin(distances,[],2); % distance of response bursts to nearest response burst
-% Res(isnan(Res))=[];
+% distances = abs(distances);
+distances = bsxfun(@minus,rB',[rB,nrB]); %yes response bursts vs. bursts
+distances(distances==0)=nan;
+[~,noRes]=nanmin(abs(distances),[],2); % distance of response bursts to nearest response burst
+for kk=1:numel(noRes); noRes(kk)=distances(kk,noRes(kk)); end
+noRes(isnan(noRes))=[];
+
+% distances = bsxfun(@minus,rB',nrB); %no response bursts vs. yes response bursts
+% [~,noRes]=min(abs(distances),[],2); % distance of no response bursts to nearest response burst
+% for kk=1:numel(noRes); noRes(kk)=distances(kk,noRes(kk)); end
+
+distances = bsxfun(@minus,nrB',[rB,nrB]); %yes response bursts vs. bursts
+% distances = abs(distances);
+% distances = triu(distances,1)+tril(nan(size(distances)));
+distances(distances==0)=nan;
+[~,Res]=nanmin(abs(distances),[],2); % distance of response bursts to nearest response burst
+for kk=1:numel(Res); Res(kk)=distances(kk,Res(kk)); end
+Res(isnan(Res))=[];
 
 noResponseBs = [noResponseBs;noRes]; %summary for all cultures
 cultNR = [cultNR;ones(size(noRes)).*i];%for nested anova
@@ -110,31 +121,31 @@ NBcult(recruitmentNB==0)=[];
 %---Firing rate of elecs in Burst---%
 figure('units','normalized','outerposition',[0 0 1 1])
 maxSize = max([numel(frB),numel(frNB)]);
-notBoxPlot([padarray(frB',[maxSize-numel(frB),0],nan,'pre'),padarray(frNB,[0,numel(frNB)-maxSize],nan,'pre')']);
+notBoxPlot([padarray(frB',[abs(maxSize-numel(frB)),0],nan,'pre'),padarray(frNB,[0,abs(numel(frNB)-maxSize)],nan,'pre')']);
 set(gca,'XTickLabel',{'Bursts w/ Ca response', 'Bursts w/o Ca response'});
 ylabel('Spike rate per channel [spikes * sec^-1]');
 set(gca,'FontSize',18,'TickDir','Out');
-export_fig('FR_Bursts.eps','-r600');
-close all;
+% export_fig('FR_Bursts.eps','-r600');
+% close all;
 
 %---Recruitment of elecs in Burst---%
 figure('units','normalized','outerposition',[0 0 1 1])
-notBoxPlot([padarray(recruitmentB',[maxSize-numel(recruitmentB),0],nan,'pre'),padarray(recruitmentNB,[0,numel(recruitmentNB)-maxSize],nan,'pre')']);
+notBoxPlot([padarray(recruitmentB',[abs(maxSize-numel(recruitmentB)),0],nan,'pre'),padarray(recruitmentNB,[0,abs(numel(recruitmentNB)-maxSize)],nan,'pre')']);
 set(gca,'XTickLabel',{'Bursts w/ Ca response', 'Bursts w/o Ca response'});
 ylabel('Percent active channel participation');
 set(gca,'FontSize',18,'TickDir','Out');
-export_fig('Recruitment_Bursts.eps','-r600');
-close all;
+% export_fig('Recruitment_Bursts.eps','-r600');
+% close all;
 
 %---Time difference between Burst with Ca and nearest burst vs. Burst without Ca and nearest burst ---%
 figure('units','normalized','outerposition',[0 0 1 1])
 maxSize = max([numel(ResponseBs),numel(noResponseBs)]);
-notBoxPlot([padarray(ResponseBs',[0,maxSize-numel(ResponseBs)],nan,'pre')',padarray(noResponseBs,[maxSize-numel(noResponseBs),0],nan,'pre')]./12000);
+notBoxPlot([padarray(ResponseBs',[0,abs(maxSize-numel(ResponseBs))],nan,'pre')',padarray(noResponseBs,[abs(maxSize-numel(noResponseBs)),0],nan,'pre')]./12000);
 set(gca,'XTickLabel',{'Intervals w/ Ca response', 'Intervals w/o Ca response'});
 set(gca,'FontSize',18,'TickDir','Out');
 ylabel('Latency to nearest burst [s]');
-export_fig('Time_Bursts.eps','-r600');
-close all;
+% export_fig('Time_Bursts.eps','-r600');
+% close all;
 
 %---Recruitment (percentage) of VF elec's in Burst---%
 figure('units','normalized','outerposition',[0 0 1 1])
@@ -156,8 +167,8 @@ bH2 = bar(bins,count_numNR,width1/2,'r');
 xlabel('Percentage view-field participation in bursts');
 ylabel('Probability density')
 set(gca,'FontSize',18,'TickDir','Out');
-export_fig('VFparticipation_Bursts.eps','-r600');
-close all;
+% export_fig('VFparticipation_Bursts.eps','-r600');
+% close all;
 
 %---Order of VF elec's in Burst---%
 figure('units','normalized','outerposition',[0 0 1 1])
@@ -174,8 +185,9 @@ xlabel('Rank orders of firing for view-field electrodes in a burst');
 ylabel('Probability density')
 legend([bH1,bH2],{'Bursts with Ca','Bursts without Ca'});
 set(gca,'FontSize',18,'TickDir','Out');
-export_fig('VForder_Bursts.eps','-r600');
-close all;
+% export_fig('VForder_Bursts.eps','-r600');
+% close all;
+
 % PlotBurstRecruitment(ratioR,ratioNR)
 % PlotBurstRecruitmentOrder(channelOrderR,channelOrderNR)
 %% Statistics

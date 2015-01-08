@@ -33,7 +33,8 @@ for k=1:size(DataSet,1)
     for i=1:size(pi,2)
         peaks = DataSet{k}.dfTime(pi{i});
         distances = bsxfun(@minus,peaks',DataSet{k}.bs./12000);
-        ampvDist{i} = min(abs(distances),[],2);
+        distances(distances<0)=nan; %look only for peaks which occur after bursts
+        ampvDist{i} = nanmin(abs(distances),[],2);
         tr  = DataSet{k}.dfTraces(:,i)-min(DataSet{k}.dfTraces(:,i));
         trz  = zscore(tr);
         %         tr  = (DataSet{k}.dfTraces(:,i)-min(DataSet{k}.dfTraces(:))) / (max(DataSet{k}.dfTraces(:))-min(DataSet{k}.dfTraces(:)));
@@ -217,11 +218,12 @@ for i=1:numlevs-1
 end
 
 %% Amplitude versus offset
+close all; clear bins;
 [~,bins]=hist3(AvD,[100,100]);
 ylow  = 0;
-yhigh = bins{2}(100);
+yhigh = bins{2}(end);
 xlow  = 0;
-xhigh = bins{1}(100);
+xhigh = bins{1}(end);
 figure('Color','white');
 subplot = @(m,n,p) subtightplot (m, n, p, [0.005 0.005], [0.05 0.05], [0.05 0.05]);
 
