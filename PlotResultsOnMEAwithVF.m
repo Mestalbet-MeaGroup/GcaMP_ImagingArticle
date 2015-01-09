@@ -11,11 +11,11 @@ function PlotResultsOnMEAwithVF(e1,e2,value,varargin)
 % 5\ Magnitude of "connection" between astrocytes and electrodes
 % Examples:
 % To plot N2N (neuron to neuron):
-% PlotResultsOnMEA(e1,e2,eval); where e1 is the source electrodes, e2 the targets and eval the value of the connection metric between them.
+% PlotResultsOnMEAwithVF(e1,e2,eval); where e1 is the source electrodes, e2 the targets and eval the value of the connection metric between them.
 % To PlotA2N:
-% PlotResultsOnMEA([],[],[],mask,ch,a1,a_e2,aval);
+% PlotResultsOnMEAwithVF([],[],[],mask,ch,a1,a_e2,aval);
 % To Plot both A2N and N2N:
-% PlotResultsOnMEA(e1,e2,eval,mask,ch,a1,a_e2,aval);
+% PlotResultsOnMEAwithVF(e1,e2,eval,mask,ch,a1,a_e2,aval);
 % f = figure;
 % Example call:
 % [e1,e2,eval,a1,a_e2,aval,ch,mask]=ParseConnectionValuesWithVF(6,500);
@@ -23,8 +23,6 @@ function PlotResultsOnMEAwithVF(e1,e2,value,varargin)
 %---Load Mea Image Data and Map---%
 load('MeaMapPlot.mat','MeaImage','MeaMap');
 MeaMap = rot90(MeaMap,-1);
-
-%---Plot Mea Image---%
 
 %--Find Electrode Positions---%
 mask = otsu(MeaImage,45);
@@ -41,9 +39,9 @@ ypos = [nan;ypos(1:14);nan;ypos(15:238);nan;ypos(239:end);nan];
 xpos=reshape(xpos,16,16);
 ypos=reshape(ypos,16,16);
 hold on
-plot(centers(:,2),centers(:,1), 'o',...
+p = plot(centers(:,2),centers(:,1), 'o',...
     'LineWidth',2,...
-    'MarkerEdgeColor','k',...
+    'MarkerEdgeColor','w',...
     'MarkerFaceColor',[1 1 1]);
 xlim([-100,3100]);
 ylim([-100,3100]);
@@ -121,8 +119,8 @@ if size(varargin,2)>2
         loc = find(sources==(a1(i)),1,'First');
         score=colors(rank(loc),:);
         sources(loc)=nan; %in case two connections have the same source (non-unique elements in a1)
-        al = patchline([x1,xpos(ax2,ay2)],[y1,ypos(ax2,ay2)],'linestyle','-','edgecolor',score,'linewidth',3,'edgealpha',0.7);
-%         al = line([x1,xpos(ax2,ay2)],[y1,ypos(ax2,ay2)],'color',score,'linewidth',3);
+%         al = patchline([x1,xpos(ax2,ay2)],[y1,ypos(ax2,ay2)],'linestyle','-','edgecolor',score,'linewidth',3,'edgealpha',0.7);
+        al = line([x1,xpos(ax2,ay2)],[y1,ypos(ax2,ay2)],'color',score,'linewidth',3);
         uistack(al,'top');
     end
     set(gca,'TickDir','out');
@@ -160,4 +158,5 @@ if size(varargin,2)>2
     set(gca,'FontSize',18);
 end
 % set(gcf,'Color','black');
+ uistack(p,'top');
 end

@@ -4,7 +4,8 @@ fclose('all');clear all; close all;clc;
 % load('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2_ManSBs_withTrim_noBSinSBS_fixedBursts_withSBbursts.mat');
 % load('BurstPeakOccurance_withSBbursts.mat');
 load('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2_ManSBs_withTrim_noBSinSBS_fixedBursts_withSBbursts.mat')
-load('BurstPeakOccurance_withSBbursts_onlyforward.mat')
+% load('BurstPeakOccurance_withSBbursts_onlyforward.mat');
+load('BurstPeakOccurance_withSBbursts_onlyforward_tillNextBurst.mat');
 
 BurstsNoPeaks(4)=[];
 BurstsWithPeaks(4)=[];
@@ -27,7 +28,7 @@ for i=1:8
     x{i} = intersect(find(temp),validBS{i});
 end
 
-%%
+%% Make burst-Ca calculations
 c1=1;
 c2=1;
 noResponseBs=[];
@@ -58,21 +59,55 @@ nrBe = be(y);
 % distances = abs(distances);
 distances = bsxfun(@minus,rB',[rB,nrB]); %yes response bursts vs. bursts
 distances(distances==0)=nan;
-[~,noRes]=nanmin(abs(distances),[],2); % distance of response bursts to nearest response burst
-for kk=1:numel(noRes); noRes(kk)=distances(kk,noRes(kk)); end
-noRes(isnan(noRes))=[];
+% Distances for first preceding burst and first following burst %
+dbehind = distances; 
+dahead= distances; 
+dbehind(dbehind>0)=nan;
+dahead(dahead<0)=nan;
+[~,noResB]=nanmin(abs(dbehind),[],2); % distance of response bursts to nearest  burst
+[~,noResA]=nanmin(abs(dahead),[],2); % distance of response bursts to nearest  burst
 
+for kk=1:numel(noResA); 
+    noResA(kk)=dahead(kk,noResA(kk)); 
+end
+
+for kk=1:numel(noResB); 
+    noResB(kk)=dbehind(kk,noResB(kk)); 
+end
+
+% noRes = [noResA;noResB]; %first burst ahead and behind
+noRes = [noResA;[]]; %first burst ahead 
+
+% noRes(isnan(noRes))=[];
 % distances = bsxfun(@minus,rB',nrB); %no response bursts vs. yes response bursts
 % [~,noRes]=min(abs(distances),[],2); % distance of no response bursts to nearest response burst
 % for kk=1:numel(noRes); noRes(kk)=distances(kk,noRes(kk)); end
 
-distances = bsxfun(@minus,nrB',[rB,nrB]); %yes response bursts vs. bursts
+distances = bsxfun(@minus,nrB',[rB,nrB]); %no response bursts vs. bursts
 % distances = abs(distances);
 % distances = triu(distances,1)+tril(nan(size(distances)));
 distances(distances==0)=nan;
-[~,Res]=nanmin(abs(distances),[],2); % distance of response bursts to nearest response burst
-for kk=1:numel(Res); Res(kk)=distances(kk,Res(kk)); end
-Res(isnan(Res))=[];
+dbehind = distances; 
+dahead= distances; 
+dbehind(dbehind>0)=nan;
+dahead(dahead<0)=nan;
+[~,ResB]=nanmin(abs(dbehind),[],2); % distance of response bursts to nearest  burst
+[~,ResA]=nanmin(abs(dahead),[],2); % distance of response bursts to nearest  burst
+
+for kk=1:numel(ResA); 
+    ResA(kk)=dahead(kk,ResA(kk)); 
+end
+
+for kk=1:numel(ResB); 
+    ResB(kk)=dbehind(kk,ResB(kk)); 
+end
+
+% Res = [ResA;ResB]; %first burst ahead and behind
+Res = [ResA;[]]; %first burst ahead 
+
+% [~,Res]=nanmin(abs(distances),[],2); % distance of no response bursts to nearest burst
+% for kk=1:numel(Res); Res(kk)=distances(kk,Res(kk)); end
+% Res(isnan(Res))=[];
 
 noResponseBs = [noResponseBs;noRes]; %summary for all cultures
 cultNR = [cultNR;ones(size(noRes)).*i];%for nested anova
@@ -200,7 +235,7 @@ rec  = [recruitmentB,recruitmentNB];
 g = [ones(size(frB)),ones(size(frNB)).*2];
 cult = [Bcult,NBcult];
 
-clear_all_but('res','gres','cultres', 'fr','rec','g','cult');
+% clear_all_but('res','gres','cultres', 'fr','rec','g','cult');
 
 for i=1:max(cultres) %latency between bursts
     [p(i),~,~] = ttest2(res(gres==1 & cultres==i),res(gres==2 & cultres==i));
@@ -222,3 +257,97 @@ end
 % [p,table,stats] = anovan(rec,{g,cult},'random',2,'nested',nestmat,'model','full','varnames',{'WithCa' 'Culture'});
 % 
 % [p,table,stats] = anovan(res,{gres,cultres},'random',2,'nested',nestmat,'model','full','varnames',{'WithCa' 'Culture'});
+
+%% Probability of a Ca response versus burst characteristics
+clear fr; 
+for i=1:8
+    Pca{i} = cellfun(@(x) numel(x)/size(peakIndex{i},2),BurstsWithPeaks{i});
+    if isfield(DataSet{i},'sb_bs')
+        bs = sort([DataSet{i}.bs,DataSet{i}.sb_bs]);
+        be = sort([DataSet{i}.be,DataSet{i}.sb_be]);
+    else
+        bs = DataSet{i}.bs;
+        be = DataSet{i}.be;
+    end
+    distances = bsxfun(@minus,bs',bs); 
+    distances(distances==0)=nan;
+    d = triu(abs(distances),1)+tril(nan(size(distances)));
+    latency{i}=min(d,[],2)./12000; 
+    
+    for j=1:size(BurstsWithPeaks{i},2)
+        t=DataSet{i}.t;
+        vec=ConvertIC2Samora(DataSet{i}.ic);
+        blims = t>=bs(j) & t<=be(j);
+        recruitment{i}(j) = numel(unique(vec(blims)));
+        fr{i}(j)=sum(blims)/((be(j)-bs(j))/12000)/recruitment{i}(j);
+        recruitment{i}(j)= recruitment{i}(j)./numel(unique(vec));
+        numbs{i}(j)=sum(abs(distances(j,:))<(5*12000));
+    end
+    
+end
+figure;
+scatter(cell2mat(fr),cell2mat(Pca));
+xlabel('firing rate [Hz]');
+ylabel('Probability of an ROI having a Ca peak');
+axis tight;
+
+figure;
+scatter(cell2mat(recruitment),cell2mat(Pca));
+xlabel('recruitment [%]');
+ylabel('probability of an ROI having a Ca peak');
+
+figure;
+lat = cell2mat(latency');
+lat(isnan(lat))=[];
+scatter(cell2mat(Pca),lat);
+xlabel('latency [s]');
+ylabel('probability of an ROI having a Ca peak');
+
+figure;
+scatter(cell2mat(numbs),cell2mat(Pca));
+xlabel('number bursts within 5 secs [#]');
+ylabel('probability of an ROI having a Ca peak');
+
+%% IBI Distributions
+close all;
+plaw=cell(8,1);
+distfit=plaw;
+dplaw=plaw;
+parfor i=1:8
+     if isfield(DataSet{i},'sb_bs')
+        bs = sort([DataSet{i}.bs,DataSet{i}.sb_bs]);
+        be = sort([DataSet{i}.be,DataSet{i}.sb_be]);
+    else
+        bs = DataSet{i}.bs;
+        be = DataSet{i}.be;
+     end
+    ibi = (be(2:end)-bs(1:end-1))./12000;
+%     ibi = diff(ibi);
+    dispHIST(ibi,nsOPTBINS(ibi));
+if numel(ibi)<300
+    plaw{i} = Power_lawFit(ibi,1);
+    dplaw{i} = Power_lawFit(diff(ibi),1);
+else
+    plaw{i} = Power_lawFit(ibi,0);
+    dplaw{i} = Power_lawFit(diff(ibi),0);
+end
+    [distfit{i},~] = allfitdist(ibi);
+end
+[~, ~,pfr] = mafdr(cellfun(@(x) x.p,plaw));
+[~, ~,pfr2] = mafdr(cellfun(@(x) x.p,dplaw));
+
+pooled=[];
+for i=1:8
+    subplot(4,2,i)
+    if isfield(DataSet{i},'sb_bs')
+        bs = sort([DataSet{i}.bs,DataSet{i}.sb_bs]);
+        be = sort([DataSet{i}.be,DataSet{i}.sb_be]);
+    else
+        bs = DataSet{i}.bs;
+        be = DataSet{i}.be;
+    end
+    ibi = (be(2:end)-bs(1:end-1))./12000;
+    dispHIST(ibi,nsOPTBINS(ibi));
+    eval(['ibi',num2str(i),' = (be(2:end)-bs(1:end-1))./12000;']);
+    pooled = [pooled,ibi];
+end

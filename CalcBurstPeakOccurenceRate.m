@@ -6,9 +6,19 @@ end
 [~,peakIndex,~]=CalcPeakStartEnd(DataSet{k}.dfTraces);
 peaks = DataSet{k}.dfTime(cell2mat(peakIndex'));
 distances = bsxfun(@minus,peaks',DataSet{k}.bs./12000);
-closeby = zeros(size(distances));
+closeby = zeros(size(distances,1),size(distances,2)-1);
 % closeby = abs(distances)<1;
-closeby = (distances<1)&(distances>0); %peaks that come after burststart
+% closeby = (distances<1)&(distances>0); %peaks that come after burststart
+
+%%
+%Use Definition: Peak Associated with Burst is the peak which occurs
+%before the next burst
+bsDis = bsxfun(@minus,(DataSet{k}.bs./12000)',DataSet{k}.bs./12000);
+bsDis=bsDis(:,1);
+for i=1:numel(bsDis)-1
+closeby(:,i)=(distances(:,i)<(bsDis(i+1)-bsDis(i))) & (distances(:,i)>0);
+end
+%%
 numbs = sum(DataSet{k}.bs<=max(peaks)*12000);
 validBS = find( (DataSet{k}.bs<=max(peaks)*12000) & (DataSet{k}.bs>=min(peaks)*12000) );
 % closeby = closeby(:,validBS);

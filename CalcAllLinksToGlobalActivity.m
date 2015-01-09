@@ -4,8 +4,9 @@ nnscores = [];
 nascores = [];
 anscores = [];
 aascores = [];
-nindex = [];
-cults = [];
+nindex   = [];
+aindex   = [];
+cults    = [];
 for i=1:9
     corrs = MaxCosSim{i};
     corrs = triu(corrs,1)+tril(nan(size(corrs)),1);
@@ -25,6 +26,7 @@ for i=1:9
         [temp,ni] = max(a2n,[],1);
         anscores = [anscores,temp];
         nindex = [nindex,ni];
+        aindex = [aindex,1:numel(temp)];
         cults = [cults,ones(size(ni)).*i];
         aascores = [aascores;max(a2a,[],2)];   
 end
@@ -54,6 +56,13 @@ neuro1=cell2mat(neuro);
 astro1=cell2mat(astro);
 n2a1=cell2mat(n2a);
 a2n1=cell2mat(a2n);
+%--Cult ID for each a2n value--%
+% a2n1_cultID=[];
+% sizes = cellfun(@(x) numel(x),a2n);
+% for i=1:numel(sizes)
+%     a2n1_cultID = [a2n1_cultID;ones(sizes(i),1).*i];
+% end
+%----%
 figure;
 bins=nsOPTBINS([neuro1,astro1,n2a1,a2n1]);
 subplot = @(m,n,p) subtightplot (m, n, p, [0.05 0.005], [0.05 0.05], [0.05 0.05]);
@@ -197,9 +206,12 @@ opts.Robust = 'LAR';
 % Plot residuals.
 figure;
 subplot(2,1,1);
+hold on
 h = plot( fitresult, xData, yData);
 set(h,'linewidth',5)
 set(allchild(gca),'MarkerSize',10);
+% scatter(xData,yData,[],a2n1_cultID,'filled');
+hold off;
 ylabel('PairWise A2N [corr]');
 axis tight;
 grid on
@@ -209,8 +221,8 @@ set(gca,'FontSize',18);
 
 subplot(2,1,2);
 h = plot( fitresult, xData, yData, 'stresiduals');
-xdata = get(h,'XData');
-ydata = get(h,'YData');
+xdata = get(h,'XData'); % x-values
+ydata = get(h,'YData'); %residual hight
 hold on;
 stem(xdata{1},ydata{1},...
     'MarkerFaceColor',[0 0 0],...
@@ -232,12 +244,12 @@ residuals = xdata{1}(find(ydata{1}>1.96));
 BestAstros = find(ismember(a2n1,residuals));
 BestNeuros(1,:) = nindex(BestAstros);
 BestNeuros(2,:) = cults(BestAstros);
-BestNeuros(3,:) =  arrayfun(@(x,y) nanmean(DataSet{x}.FR(:,y))/winsize(x),BestNeuros(2,:),BestNeuros(1,:));
-BestNeuros(4,:) =  arrayfun(@(x,y) nanmean(MaxCosSim{x}(y,size(DataSet{x}.ic,2)+1:end)),BestNeuros(2,:),BestNeuros(1,:));
+BestNeuros(3,:) = arrayfun(@(x,y) nanmean(DataSet{x}.FR(:,y))/winsize(x),BestNeuros(2,:),BestNeuros(1,:));
+BestNeuros(4,:) = arrayfun(@(x,y) nanmean(MaxCosSim{x}(y,size(DataSet{x}.ic,2)+1:end)),BestNeuros(2,:),BestNeuros(1,:));
 BestNeuros(5,:) = arrayfun(@(x,y) neuro{x}(y),BestNeuros(2,:),BestNeuros(1,:));
 
 % HIBastros = intersect(find(a2n1>=mean(a2n1)+std(a2n1)),find(yData>=mean(yData)+2*std(yData)));
-HIBastros = intersect(find(a2n1>=0.3),find(yData>=0.4));
+HIBastros = intersect(find(a2n1>=0.3),find(yData>=0.4)); %high in both
 
 % HIBastros = find(ismember(a2n1,highinboth));
 HIBn(1,:) = nindex(HIBastros);
@@ -282,6 +294,14 @@ set(gca,'XTick',6,'XTickLabel',{'cross-correlation to GFR'},'TickDir','out');
 ylabel(ha,'normalized cross-correlation'); 
 set(gca,'FontSize',18);
 % export_fig('Fig_ResidualsCorrFR.eps','-r600');
+% HighResCorr_cult6(1,:) = a2n1(cults==6 & ydata{1}>1.96);
+% HighResCorr_cult6(2,:) = nindex(cults==6 & ydata{1}>1.96);
+% HighResCorr_cult6(3,:) = aindex(cults==6 & ydata{1}>1.96);
+% 
+% HighBoth_Cult6(1,:) = yData(cults'==6 & (xData>=0.3) & (yData>=0.4));
+% HighBoth_Cult6(2,:) = nindex(cults'==6 & (xData>=0.3) & (yData>=0.4));
+% HighBoth_Cult6(3,:) = aindex(cults'==6 &(xData>=0.3) & (yData>=0.4));
+
 %% Statistics
 g1 = [ones(size(BestNeuros(3,:))),ones(size(otherFR))*2,ones(size(HIBn(3,:)))*3]; %high res, all others, high both
 g2 = [BestNeuros(2,:),1:9,HIBn(2,:)]; %which culture

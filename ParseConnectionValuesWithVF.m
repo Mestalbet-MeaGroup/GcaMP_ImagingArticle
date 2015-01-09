@@ -3,7 +3,8 @@ function [e1,e2,eval,a1,a_e2,aval,ch,mask]=ParseConnectionValuesWithVF(which,num
 %values. Used to produce input variables for PlotResultsOnMea.m. If you
 %want to use another value than maximum correlation (from
 %CorrDistributions), add the matrix as an optional third input.
-load('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2.mat');
+% load('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2.mat');
+load('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2_ManSBs_withTrim_noBSinSBS_fixedBursts_withSBbursts.mat')
 load('CorrDistributions2.mat', 'MaxCosSim');
 % load('CorrDistribution_Cult6_temp2.mat','MaxCosSim');
 MaxCosSim = MaxCosSim{which};

@@ -3,7 +3,8 @@ fclose('all');clear all; close all;clc;
 % load('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2_ManSBs_withTrim_noBSinSBS_fixedBursts.mat')
 % load('BurstPeakOccurance.mat')
 load('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2_ManSBs_withTrim_noBSinSBS_fixedBursts_withSBbursts.mat')
-load('BurstPeakOccurance_withSBbursts_onlyforward.mat')
+% load('BurstPeakOccurance_withSBbursts_onlyforward.mat');
+load('BurstPeakOccurance_withSBbursts_onlyforward_tillNextBurst.mat');
 %---Remove Culture 4 which has virtually no transients---%
 BurstsNoPeaks(4)=[];
 BurstsWithPeaks(4)=[];
