@@ -13,7 +13,8 @@ ind = find(eval<min(aval));
 e1(ind)=[];
 e2(ind)=[];
 eval(ind)=[];
-PlotResultsOnMEAwithVF(e1,e2,eval,mask,ch,a1,a_e2,aval);
+load('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2_ManSBs_withTrim_noBSinSBS_fixedBursts_withSBbursts.mat')
+PlotResultsOnMEAwithVF(e1,e2,eval,DataSet{6}.ic,mask,ch,a1,a_e2,aval);
 
 
 

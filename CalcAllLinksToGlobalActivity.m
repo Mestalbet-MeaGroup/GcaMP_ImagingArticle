@@ -1,4 +1,4 @@
-load('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2_ManSBs_withTrim_noBSinSBS_fixedBursts.mat');
+load('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2_ManSBs_withTrim_noBSinSBS_fixedBursts_withSBbursts.mat');
 load('CorrDistributions2.mat', 'MaxCosSim');
 nnscores = [];
 nascores = [];
@@ -24,7 +24,7 @@ for i=1:9
         nnscores = [nnscores;max(n2n,[],2)];
         nascores = [nascores;max(a2n,[],2)];
         [temp,ni] = max(a2n,[],1);
-        anscores = [anscores,temp];
+        anscores = [anscores,temp]; %pairwise correlation
         nindex = [nindex,ni];
         aindex = [aindex,1:numel(temp)];
         cults = [cults,ones(size(ni)).*i];
@@ -55,7 +55,7 @@ end
 neuro1=cell2mat(neuro);
 astro1=cell2mat(astro);
 n2a1=cell2mat(n2a);
-a2n1=cell2mat(a2n);
+a2n1=cell2mat(a2n); %correlation to mean-field
 %--Cult ID for each a2n value--%
 % a2n1_cultID=[];
 % sizes = cellfun(@(x) numel(x),a2n);
@@ -205,20 +205,6 @@ opts.Robust = 'LAR';
 
 % Plot residuals.
 figure;
-subplot(2,1,1);
-hold on
-h = plot( fitresult, xData, yData);
-set(h,'linewidth',5)
-set(allchild(gca),'MarkerSize',10);
-% scatter(xData,yData,[],a2n1_cultID,'filled');
-hold off;
-ylabel('PairWise A2N [corr]');
-axis tight;
-grid on
-set(gca,'XTickLabels',{},'TickDir','out');
-xlabel('');
-set(gca,'FontSize',18);
-
 subplot(2,1,2);
 h = plot( fitresult, xData, yData, 'stresiduals');
 xdata = get(h,'XData'); % x-values
@@ -227,6 +213,11 @@ hold on;
 stem(xdata{1},ydata{1},...
     'MarkerFaceColor',[0 0 0],...
     'MarkerEdgeColor',[0 0 0],...
+    'MarkerSize',5,...
+    'Color',[0 0.447 0.741]);
+stem(xdata{1}(find(ydata{1}>1.96)),ydata{1}(find(ydata{1}>1.96)),...
+    'MarkerFaceColor',[237,47,89]./255,...
+    'MarkerEdgeColor',[237,47,89]./255,...
     'MarkerSize',5,...
     'Color',[0 0.447 0.741]);
 line(xdata{2},ydata{2});
@@ -247,7 +238,8 @@ BestNeuros(2,:) = cults(BestAstros);
 BestNeuros(3,:) = arrayfun(@(x,y) nanmean(DataSet{x}.FR(:,y))/winsize(x),BestNeuros(2,:),BestNeuros(1,:));
 BestNeuros(4,:) = arrayfun(@(x,y) nanmean(MaxCosSim{x}(y,size(DataSet{x}.ic,2)+1:end)),BestNeuros(2,:),BestNeuros(1,:));
 BestNeuros(5,:) = arrayfun(@(x,y) neuro{x}(y),BestNeuros(2,:),BestNeuros(1,:));
-
+BestNeuros(6,:) = anscores(BestAstros);
+BestNeuros(7,:) = aindex(BestAstros);
 % HIBastros = intersect(find(a2n1>=mean(a2n1)+std(a2n1)),find(yData>=mean(yData)+2*std(yData)));
 HIBastros = intersect(find(a2n1>=0.3),find(yData>=0.4)); %high in both
 
@@ -257,18 +249,26 @@ HIBn(2,:) = cults(HIBastros);
 HIBn(3,:) = arrayfun(@(x,y) nanmean(DataSet{x}.FR(:,y))/winsize(x),HIBn(2,:),HIBn(1,:));
 HIBn(4,:) = arrayfun(@(x,y) nanmean(MaxCosSim{x}(y,size(DataSet{x}.ic,2)+1:end)),HIBn(2,:),HIBn(1,:));
 HIBn(5,:) = arrayfun(@(x,y) neuro{x}(y),HIBn(2,:),HIBn(1,:));
-
-% LGastros = find(ismember(a2n1,residuals));
-% LGn(1,:) = nindex(LGastros);
-% LGn(2,:) = cults(LGastros);
-% LGn(3,:) = arrayfun(@(x,y) nanmean(DataSet{x}.FR(:,y)),LGn(2,:),LGn(1,:));
-
-% otherFR =  arrayfun(@(x,y) nanmean(nanmean(DataSet{x}.FR(:,setdiff(1:size(DataSet{x}.FR,2),y))))/winsize(x),BestNeuros(2,:),BestNeuros(1,:));
-% otherCorr2A=  arrayfun(@(x,y) nanmean(nanmean(MaxCosSim{x}(setdiff(1:size(DataSet{x}.FR,2),y),size(DataSet{x}.ic,2)+1:end))),BestNeuros(2,:),BestNeuros(1,:));
-% otherCorr2GFR = arrayfun(@(x,y) nanmean(neuro{x}(setdiff(1:size(DataSet{x}.FR,2),y))),BestNeuros(2,:),BestNeuros(1,:));
+HIBn(6,:) = anscores(HIBastros);
+HIBn(7,:) = aindex(HIBastros);
 otherFR     =  arrayfun(@(x) nanmean(nanmean(DataSet{x}.FR(:,setdiff(1:size(DataSet{x}.FR,2),unique(BestNeuros(1,BestNeuros(2,:)==x))))))/winsize(x),1:9);
 otherCorr2A =  arrayfun(@(x) nanmean(nanmean(MaxCosSim{x}(setdiff(1:size(DataSet{x}.FR,2),unique(BestNeuros(1,BestNeuros(2,:)==x))),size(DataSet{x}.ic,2)+1:end))),1:9);
 otherCorr2GFR = arrayfun(@(x,y) nanmean(neuro{x}(setdiff(1:size(DataSet{x}.FR,2),unique(BestNeuros(1,BestNeuros(2,:)==x))))),1:9);
+
+subplot(2,1,1);
+hold on
+h = plot( fitresult, xData, yData);
+plot(xData(BestAstros),yData(BestAstros),'.','Color',[237,47,89]./255); %color residuals above the confidence bound on the regression, red
+set(h,'linewidth',5)
+set(allchild(gca),'MarkerSize',10);
+hold off;
+ylabel('PairWise A2N [corr]');
+axis tight;
+grid on
+set(gca,'XTickLabels',{},'TickDir','out');
+xlabel('');
+set(gca,'FontSize',18);
+
 
 %---Figure of Neurons which are in high pairwise correlation with astro's but low correlation with the GFR---%
 figure('units','normalized','outerposition',[0 0 1 1]);
@@ -294,13 +294,6 @@ set(gca,'XTick',6,'XTickLabel',{'cross-correlation to GFR'},'TickDir','out');
 ylabel(ha,'normalized cross-correlation'); 
 set(gca,'FontSize',18);
 % export_fig('Fig_ResidualsCorrFR.eps','-r600');
-% HighResCorr_cult6(1,:) = a2n1(cults==6 & ydata{1}>1.96);
-% HighResCorr_cult6(2,:) = nindex(cults==6 & ydata{1}>1.96);
-% HighResCorr_cult6(3,:) = aindex(cults==6 & ydata{1}>1.96);
-% 
-% HighBoth_Cult6(1,:) = yData(cults'==6 & (xData>=0.3) & (yData>=0.4));
-% HighBoth_Cult6(2,:) = nindex(cults'==6 & (xData>=0.3) & (yData>=0.4));
-% HighBoth_Cult6(3,:) = aindex(cults'==6 &(xData>=0.3) & (yData>=0.4));
 
 %% Statistics
 g1 = [ones(size(BestNeuros(3,:))),ones(size(otherFR))*2,ones(size(HIBn(3,:)))*3]; %high res, all others, high both

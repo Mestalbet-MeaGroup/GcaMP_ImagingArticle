@@ -248,7 +248,12 @@ set(allchild(gca),'FaceColor',[0 0 0]);
 set(gca,'FontSize',9,'ycolor','w');
 
 subplot(6,6,[8:12,14:18,20:24,26:30,32:36])
-hist3(AvD,[100,100]);
+% hist3(AvD,[100,100]);
+[temphist,bins]=hist3(AvD,[100,100]);
+normhist = temphist/trapz(bins{2},trapz(bins{1},temphist));
+xo = repmat(bins{1}',1,size(normhist,2));
+yo = repmat(bins{2},size(normhist,1),1);
+surface(xo,yo,normhist);
 az=0;%35
 el=90;%32
 view([az,el]);

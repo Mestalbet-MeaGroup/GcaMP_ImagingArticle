@@ -1,4 +1,4 @@
-function PlotResultsOnMEAwithVF(e1,e2,value,varargin)
+function PlotResultsOnMEAwithVF(e1,e2,value,ic,varargin)
 % Function which accepts a series of electrode sources and targets, and a
 % value (same number of sources, targets and values) then plots a line
 % connecting source to target, with a color determined by value. Requires
@@ -41,8 +41,19 @@ ypos=reshape(ypos,16,16);
 hold on
 p = plot(centers(:,2),centers(:,1), 'o',...
     'LineWidth',2,...
-    'MarkerEdgeColor','w',...
+    'MarkerEdgeColor',[1 1 1],...
     'MarkerFaceColor',[1 1 1]);
+load('PairwiseVsMeanfield.mat');
+green = ic(1,unique(HIBn(1,HIBn(2,:)==6)));
+red = ic(1,unique(HighRes(1,HighRes(2,:)==6)));
+pg = plot(xpos(ismember(MeaMap,green)),ypos(ismember(MeaMap,green)), 'o',...
+    'LineWidth',2,...
+    'MarkerEdgeColor',[43 157 82]./255,...
+    'MarkerFaceColor',[43 157 82]./255);
+pr = plot(xpos(ismember(MeaMap,red)),ypos(ismember(MeaMap,red)), 'o',...
+    'LineWidth',2,...
+    'MarkerEdgeColor',[237 47 89]./255,...
+    'MarkerFaceColor',[237 47 89]./255);
 xlim([-100,3100]);
 ylim([-100,3100]);
 set(gca,'XTick',[-100:250:3100],'XTickLabel',[-100:250:3100]+100);
@@ -159,4 +170,6 @@ if size(varargin,2)>2
 end
 % set(gcf,'Color','black');
  uistack(p,'top');
+ uistack(pg,'top');
+ uistack(pr,'top');
 end

@@ -309,7 +309,6 @@ xlabel('number bursts within 5 secs [#]');
 ylabel('probability of an ROI having a Ca peak');
 
 %% IBI Distributions
-close all;
 plaw=cell(8,1);
 distfit=plaw;
 dplaw=plaw;
