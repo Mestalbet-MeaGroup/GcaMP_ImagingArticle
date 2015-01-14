@@ -220,6 +220,7 @@ end
 
 %% Amplitude versus offset
 close all; clear bins;
+AvD(AvD(:,1)>25,:)=[];
 [~,bins]=hist3(AvD,[100,100]);
 ylow  = 0;
 yhigh = bins{2}(end);
@@ -258,10 +259,9 @@ az=0;%35
 el=90;%32
 view([az,el]);
 set(gca,'YTick',[]);
-set(get(gca,'child'),'FaceColor','interp','CDataMode','auto');
+set(get(gca,'child'),'FaceColor','flat','CDataMode','auto');
 xlim([xlow,xhigh]);
 ylim([ylow,yhigh]);
-set(get(gca,'child'),'FaceColor','interp','CDataMode','auto');
 CData = get(get(gca,'child'),'CData')+1;
 CData(CData<=0) = NaN;
 CData(CData==Inf) = NaN;
@@ -281,7 +281,7 @@ set(gca,'TickDir','out','FontSize',9);
 hCbar = colorbar(gca);
 myscale = [nanmin(CData(:)),10^1,10^1.5,10^2,nanmax(CData(:))];
 caxis([myscale(1),myscale(end)])
-set(hCbar,'YTick',myscale);
-set(hCbar,'YTickLabel',log10(myscale),'TickDir','out','FontSize',9);
+% set(hCbar,'YTick',myscale);
+% set(hCbar,'YTickLabel',log10(myscale),'TickDir','out','FontSize',9);
 ylabel(hCbar,'incidence [counts]');
 
