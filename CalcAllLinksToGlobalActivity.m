@@ -1,3 +1,4 @@
+fclose('all');clear all; close all;clc;
 load('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2_ManSBs_withTrim_noBSinSBS_fixedBursts_withSBbursts.mat');
 load('CorrDistributions2.mat', 'MaxCosSim');
 nnscores = [];

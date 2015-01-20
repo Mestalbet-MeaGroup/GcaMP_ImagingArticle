@@ -18,4 +18,4 @@ end
 numlevs=4;
 ampsC  = nanmax(CutoutNear,[],2);
 ranksC = otsu(ampsC,numlevs);
-CreatePSTHFigure(DataSet,atriglag,atrigpsth,6,CutoutNear,ranksC)
+CreatePSTHFigure(DataSet,atriglag,atrigpsth,k,CutoutNear,ranksC)

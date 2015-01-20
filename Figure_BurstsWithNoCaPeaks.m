@@ -259,7 +259,7 @@ end
 % [p,table,stats] = anovan(res,{gres,cultres},'random',2,'nested',nestmat,'model','full','varnames',{'WithCa' 'Culture'});
 
 %% Probability of a Ca response versus burst characteristics
-clear fr; 
+clear fr; close all;
 for i=1:8
     Pca{i} = cellfun(@(x) numel(x)/size(peakIndex{i},2),BurstsWithPeaks{i});
     if isfield(DataSet{i},'sb_bs')
@@ -285,28 +285,39 @@ for i=1:8
     end
     
 end
+optM = [50,15];
 figure;
-scatter(cell2mat(fr),cell2mat(Pca));
+% scatter(cell2mat(fr),cell2mat(Pca));
+% axis tight;
+% optM = nsOPTBINS([cell2mat(fr);cell2mat(Pca)]);
+PlotColWiseNormHist(cell2mat(fr),cell2mat(Pca),optM,'both');
 xlabel('firing rate [Hz]');
 ylabel('Probability of an ROI having a Ca peak');
-axis tight;
 
 figure;
-scatter(cell2mat(recruitment),cell2mat(Pca));
+% scatter(cell2mat(recruitment),cell2mat(Pca));
+% optM = nsOPTBINS([cell2mat(recruitment);cell2mat(Pca)]);
+PlotColWiseNormHist(cell2mat(recruitment),cell2mat(Pca),optM,'both');
 xlabel('recruitment [%]');
 ylabel('probability of an ROI having a Ca peak');
+figure; PlotColWiseNormHist(recruitment{2},Pca{2},optM,'both');
 
 figure;
 lat = cell2mat(latency');
 lat(isnan(lat))=[];
-scatter(cell2mat(Pca),lat);
+% scatter(cell2mat(Pca),lat);
+% optM = nsOPTBINS([lat';cell2mat(Pca)]);
+PlotColWiseNormHist(lat',cell2mat(Pca),optM,'both');
 xlabel('latency [s]');
 ylabel('probability of an ROI having a Ca peak');
 
 figure;
-scatter(cell2mat(numbs),cell2mat(Pca));
+% scatter(cell2mat(numbs),cell2mat(Pca));
+% optM = nsOPTBINS([cell2mat(numbs);cell2mat(Pca)]);
+PlotColWiseNormHist(cell2mat(numbs),cell2mat(Pca),optM,'both');
 xlabel('number bursts within 5 secs [#]');
 ylabel('probability of an ROI having a Ca peak');
+
 
 %% IBI Distributions
 plaw=cell(8,1);

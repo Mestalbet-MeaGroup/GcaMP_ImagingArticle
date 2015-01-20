@@ -11,9 +11,9 @@ cult = DataSet{i,1}.culture;
 ch = DataSet{i,1}.channel;
 title(['Astrocyte Triggered, ','Culture ',num2str(cult),' Channel: ',num2str(ch)]);
 %---Order by Offsets---%
-% order = Sortpsth{i}pairs(atrigpsth{i}{i});
+order = SortPSTHpairs(zscore(psth{i},[],2));
 %---No Ordering---%
-order = 1:size(psth{i},1);
+% order = 1:size(psth{i},1);
 %----------------------%
 temp = zscore(psth{i}(order,:)')';
 temp(temp<0)=0;

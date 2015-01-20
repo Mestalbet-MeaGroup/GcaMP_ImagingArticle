@@ -1,6 +1,7 @@
 function DataSet = FixBursts(DataSet);
 
-for j=5:size(DataSet,1)
+% for j=1:size(DataSet,1)
+for j=4;
     t= DataSet{j}.t;
     ic = DataSet{j}.ic;
     bs = DataSet{j}.bs;

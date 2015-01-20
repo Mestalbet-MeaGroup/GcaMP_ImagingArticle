@@ -12,7 +12,7 @@ DataSet(4)=[];
 numBI(4)=[];
 numNoB(4)=[];
 numSB(4)=[];
-peakIndex(4)=[];
+peakIndex(4)=[]; %for each
 PeaksNoBursts(4)=[];
 PeaksWithBursts(4)=[];
 PeaksWithSBs(4)=[];
@@ -285,3 +285,40 @@ caxis([myscale(1),myscale(end)])
 % set(hCbar,'YTickLabel',log10(myscale),'TickDir','out','FontSize',9);
 ylabel(hCbar,'incidence [counts]');
 
+%% Amp vs Num bursts
+close all;
+c=1;
+win = 10;
+for i=1:size(DataSet,1)
+    if isfield(DataSet{i},'sb_bs')
+        bs = sort([DataSet{i}.bs,DataSet{i}.sb_bs])./12000;
+        be = sort([DataSet{i}.be,DataSet{i}.sb_be])./12000;
+    else
+        bs = DataSet{i}.bs./12000;
+        be = DataSet{i}.be./12000;
+    end 
+    peakTimes{i} = cellfun(@(x) DataSet{i}.dfTime(x),peakIndex{i},'UniformOutput',false);
+    for j=1:size(peakTimes{i},2)
+        trz  = zscore(DataSet{i}.dfTraces(:,j)-min(DataSet{i}.dfTraces(:,j)));
+        for k=1:numel(peakIndex{i}{j})
+        AmpVnumB(c,1) = trz(peakIndex{i}{j}(k)); %peak amplitude
+        AmpVnumB(c,2) = sum((bs>=(peakTimes{i}{j}(k)-win)) & (bs<=(peakTimes{i}{j}(k)+win))); %number of bursts within window
+        c=c+1;
+        end
+    end
+end
+close all;
+figure;
+PlotColWiseNormHist(AmpVnumB(:,2),AmpVnumB(:,1),[20,20],'both');
+% [temphist,bins]=hist3(AmpVnumB(:,[2,1]),[20,100]);
+% normhist = temphist/trapz(bins{2},trapz(bins{1},temphist));
+% xo = repmat(bins{1}',1,size(normhist,2));
+% yo = repmat(bins{2},size(normhist,1),1);
+% surface(xo,yo,normhist);
+% az=0;%35
+% el=90;%32
+% view([az,el]);
+% set(get(gca,'child'),'FaceColor','flat','CDataMode','auto');
+% axis tight;
+ylabel('peak amplitudes');
+xlabel(['# bursts within ',num2str(win), ' s of peak']);
