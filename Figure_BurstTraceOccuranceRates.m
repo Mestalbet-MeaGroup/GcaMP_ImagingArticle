@@ -72,7 +72,9 @@ WhichTraces = WhichTraces(1:3);
 
 RasterPlotLineTrace(DataSet{k}.Trim.t,DataSet{k}.Trim.ic,DataSet{k}.bs(WhichBurst)-0.1*NumSecs*12000,DataSet{k}.bs(WhichBurst)+NumSecs*12000,DataSet{k}.dfTraces(:,WhichTraces)',DataSet{k}.dfTime.*12000);
 %% Subplot 7: Bar chart percentage of occurence
-
+numBI = cell2mat(numBI);
+numNoB = cell2mat(numNoB);
+numSB = cell2mat(numSB);
 figure('color','white');
 hold on;
 bars = [[nanmean(numBI);1-nanmean(numBI)],[nanmean(numNoB);1-nanmean(numNoB)],[nanmean(numSB);1-nanmean(numSB)]]';

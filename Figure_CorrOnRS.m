@@ -26,40 +26,34 @@ if size(d,1)>size(d,2)
     d=d';
     s=s';
 end
-ds = [d;s]';
+ds = [d;s]'; %d = distance, s=correlation
 ds(isnan(ds(:,2)),:)=[];
-clear_all_but('ds');
-% optM = nsOPTBINS(ds');
-hist3(ds,[15,15]);
+clear_all_but('ds','a2nd','a2ns');
+optM = [20,20];
+[temphist,bins]=CalcNormHistByDistances(ds,a2nd,a2ns,optM);
+counts = repmat(sum(temphist,2),[1,optM(1)]);
+counts = counts/sum(counts(:,1));
+counts2 = repmat(sum(temphist,1),[optM(2),1]);
+counts2 = counts2/sum(counts2(1,:));
+expected = counts.*counts2;
+expected(expected==0)=inf;
+normhist = temphist./expected;
+%------Plot--------%
+xo = repmat(bins{1}',1,size(normhist,2));
+yo = repmat(bins{2},size(normhist,1),1);
+s = surface(xo,yo,normhist);
 az=0;%35
 el=90;%32
 view([az,el]);
-set(get(gca,'child'),'FaceColor','interp','CDataMode','auto');
-CData = get(get(gca,'child'),'CData');
-CData(CData<=0) = NaN;
-CData(CData==Inf) = NaN;
-% Find min/max
-minC = min(CData(:));
-maxC = max(CData(:));
-% Convert data to log space
-CData = log10(CData);
-% Normalize the log scaled CData to have the same range as the ZData so
-% that the colorbar scale will be correct
-CData = minC + (maxC-minC)*(CData-log10(minC))/(log10(maxC/minC));
-% Now set the CData of the surface to the normalized CData
-set(get(gca,'child'),'CData',CData)
-set(get(gca,'child'),'CDataMapping','scaled')
+set(get(gca,'child'),'FaceColor','flat','CDataMode','auto');
 axis tight;
 grid off;
-set(gca,'PlotBoxAspectRatio',[1,1,1],'TickDir','out','FontSize',9);
-ylabel('astrocyte-neuron pairwise correlation');
-xlabel('distance [um]');
 hCbar = colorbar(gca);
-myscale = [nanmin(CData(:)),10^2,10^2.5,10^3,10^3.5,nanmax(CData(:))];
-caxis([myscale(1),myscale(end)])
-set(hCbar,'YTick',myscale);
-set(hCbar,'YTickLabel',log10(myscale),'TickDir','out','FontSize',9);
-ylabel(hCbar,'incidence [counts]');
+set(gca,'PlotBoxAspectRatio',[1,1,1],'TickDir','out','FontSize',9);
+ylabel('maximum astrocyte-neuron correlation');
+xlabel('distance [um]');
+ylabel(hCbar,'probability');
+set(hCbar,'TickDirection','out');
 
 %--------------------------------------Now for Lags-----------------------%
 load('E:\LagDist3.mat');
@@ -73,33 +67,30 @@ if size(d,1)>size(d,2)
 end
 dl = [d;l]';
 dl(isnan(dl(:,2)),:)=[];
-bin = {linspace(min(dl(:,1)),max(dl(:,1)),15),linspace(min(dl(:,2)),max(dl(:,2)),16)};
-normhist=zeros(numel(bin{1}),numel(bin{2}));
-DistMat = CreateElectrodeDistanceTable();
-for i=1:size(DataSet,1)
-    [hist,bins]  = hist3([a2nd{i}(~isnan(a2nd{i})),a2nL{i}(~isnan(a2nd{i}))],'Edges',bin);
-    nnB = size(bins{1},2);
-    factor=zeros(1,nnB(1));
-    for k=1:nnB(1)-1
-        factor(k) = NormalizeDistanceCounts(DistMat,MeaMap,DataSet{i}.channel,bins{1}(k),bins{1}(k+1));
-    end
-%     factor = factor./trapz(bins{1},factor);
-    factor(factor==0)=inf;
-    temphist = hist./repmat(factor,size(normhist,2),1)';
-    normhist=normhist+temphist/trapz(bins{2},trapz(bins{1},temphist));
-end
-normhist = normhist./9;
+clear_all_but('dl','a2nd','a2nL');
+optM = [20,20];
 
+[temphist,bins]=CalcNormHistByDistances(dl,a2nd,a2nL,optM);
+counts = repmat(sum(temphist,2),[1,optM(1)]);
+counts = counts/sum(counts(:,1));
+counts2 = repmat(sum(temphist,1),[optM(2),1]);
+counts2 = counts2/sum(counts2(1,:));
+expected = counts.*counts2;
+expected(expected==0)=inf;
+normhist = temphist./expected;
+normhist = normhist/trapz(bins{2},trapz(bins{1},normhist));
+%---------Plot---------%
 xo = repmat(bins{1}',1,size(normhist,2));
 yo = repmat(bins{2},size(normhist,1),1);
 s = surface(xo,yo,normhist);
 az=0;%35
 el=90;%32
 view([az,el]);
-set(get(gca,'child'),'FaceColor','interp','CDataMode','auto');
+set(get(gca,'child'),'FaceColor','flat','CDataMode','auto');
 axis tight;
 grid off;
 hCbar = colorbar(gca);
+caxis([nanmin(normhist(:)),nanmax(normhist(:))]);
 set(gca,'PlotBoxAspectRatio',[1,1,1],'TickDir','out','FontSize',9);
 ylabel('astrocyte-neuron lag at maximum correlation [ms]');
 xlabel('distance [um]');

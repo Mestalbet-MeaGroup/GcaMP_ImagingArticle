@@ -1,5 +1,5 @@
 %% Load Data
-fclose('all');clear all; close all;clc;
+% fclose('all');clear all; close all;clc;
 % load('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2_ManSBs_withTrim_noBSinSBS_fixedBursts.mat')
 % load('BurstPeakOccurance.mat')
 load('DataSet_GFAP_GcAMP6_withSchematic_withMask_withLags_ParCor_FullSet2_ManSBs_withTrim_noBSinSBS_fixedBursts_withSBbursts.mat')
@@ -20,17 +20,17 @@ SBsWithPeaks(4)=[];
 %%
 AvD = [];AvDcultNum=[];
 counter=1;cf=1;
-AreaAmp1=[];AreaAmp2=[];
+AreaAmp1=[];AreaAmp2=[];CutoutNear=[];CutoutFar=[];NearROIs=[];FarROIs=[];
 for k=1:size(DataSet,1)
-    % for k=6
-    %     [~,peakIndex,~]=CalcPeakStartEnd(DataSet{k}.dfTraces);
-    %     [~,~,~,PeaksWithBursts,~,PeaksNoBursts,~,~,~,peakIndex]=CalcBurstPeakOccurenceRate(DataSet,k);
+    %     [~,peakIndex{k},~]=CalcPeakStartEnd(DataSet{k}.dfTraces); %calc instead of load
+    %     [~,~,~,PeaksWithBursts{k},~,PeaksNoBursts{k},~,~,~,peakIndex{k}]=CalcBurstPeakOccurenceRate(DataSet,k);
     pi  = peakIndex{k};
     pb  = PeaksWithBursts{k};
     pnb = PeaksNoBursts{k};
     if isfield(DataSet{k},'sb_bs')
         DataSet{k}.bs=sort([DataSet{k}.bs,DataSet{k}.sb_bs]);
     end
+    
     for i=1:size(pi,2)
         peaks = DataSet{k}.dfTime(pi{i});
         distances = bsxfun(@minus,peaks',DataSet{k}.bs./12000);
@@ -38,35 +38,41 @@ for k=1:size(DataSet,1)
         ampvDist{i} = nanmin(abs(distances),[],2);
         tr  = DataSet{k}.dfTraces(:,i)-min(DataSet{k}.dfTraces(:,i));
         trz  = zscore(tr);
-        %         tr  = (DataSet{k}.dfTraces(:,i)-min(DataSet{k}.dfTraces(:))) / (max(DataSet{k}.dfTraces(:))-min(DataSet{k}.dfTraces(:)));
         ampvDist{i}(:,2)=trz(pi{i});
+        Close  = find(ampvDist{i}(:,1)<3);
+        far    = find(ampvDist{i}(:,1)>10);
+        if ~isempty(Close)
+            for j=1:numel(Close)
+                CutoutNear = [CutoutNear;CreateTraceCutOuts(tr,pi{i}(Close(j)),100,100)'];
+                NearROIs   =  [NearROIs;[k,i,Close(j)]];
+            end
+        end
         
-        
-        %         closeby = zeros(size(distances));
-        %         closeby = abs(distances)<1;
-        %         far = zeros(size(distances));
-        %         far = abs(distances)<=3;
+        if ~isempty(far)
+            for j=1:numel(far)
+                CutoutFar = [CutoutFar;CreateTraceCutOuts(tr,pi{i}(far(j)),100,100)'];
+                FarROIs   =  [FarROIs;[k,i,far(j)]];
+            end
+        end
+        %         if ~isempty(pb{i})
+        %             pb{i}=unique(pb{i});
+        %             for j=1:numel(pb{i})
         %
-        %         [pb{i},~]=find(closeby==1);
-        %         pnb{i}=find(sum(far==0,2)==size(distances,2));
-        
-        if ~isempty(pb{i})
-            pb{i}=unique(pb{i});
-            for j=1:numel(pb{i})
-                CutoutNear(counter,:) = CreateTraceCutOuts(tr,pi{i}(pb{i}(j)),50,50);
-                NearROIs(counter,:) = [k,i,pb{i}(j)];
-                counter=counter+1;
-            end
-        end
-        
-        if ~isempty(pnb{i})
-            pnb{i}=unique(pnb{i});
-            for j=1:numel(pnb{i})
-                CutoutFar(cf,:) = CreateTraceCutOuts(tr,pi{i}(pnb{i}(j)),50,50);
-                FarROIs(cf,:) = [k,i,pnb{i}(j)];
-                cf=cf+1;
-            end
-        end
+        %                 CutoutNear(counter,:) = CreateTraceCutOuts(trz,pi{i}(pb{i}(j)),50,50);
+        %                 coNear(counter,:)=[k,i,pb{i}(j)];
+        %                 NearROIs(counter,:) = [k,i,pb{i}(j)];
+        %                 counter=counter+1;
+        %             end
+        %         end
+        %
+        %         if ~isempty(pnb{i})
+        %             pnb{i}=unique(pnb{i});
+        %             for j=1:numel(pnb{i})
+        %                 CutoutFar(cf,:) = CreateTraceCutOuts(trz,pi{i}(pnb{i}(j)),50,50);
+        %                 FarROIs(cf,:) = [k,i,pnb{i}(j)];
+        %                 cf=cf+1;
+        %             end
+        %         end
         % for area vs. num pixels
         AreaAmp2 = [AreaAmp2, max(trz)];
     end
@@ -77,9 +83,6 @@ for k=1:size(DataSet,1)
     temp=cell2mat(ampvDist');
     AvD = [AvD;sortrows(temp,1)];
     AvDcultNum = [AvDcultNum;ones(size(temp,1),1).*k];
-    
-    
-    
 end
 %% Find ROIs with only Far Peaks or Only Near Peaks or Both
 OnlyNearAreas=[];
@@ -190,13 +193,39 @@ subplot = @(m,n,p) subtightplot (m, n, p, [0.01 0.02], [0.05 0.05], [0.05 0.05])
 numlevs=4;
 ampsC  = nanmax(CutoutNear,[],2);
 ampsF  = nanmax(CutoutFar,[],2);
+
+subplot(1,2,1)
+hold on
+ClusterIDs = otsu(ampsC,numlevs);
+color = cool(max(ClusterIDs)+5);
+for i=1:max(ClusterIDs)
+    plotmat = mean(CutoutNear(ClusterIDs==i,:)',2);
+    plot(plotmat,'.-','Color',color(i,:));   
+end
+axis tight;
+ylimits = get(gca,'YLim');
+
+subplot(1,2,2)
+hold on
+ClusterIDs = otsu(ampsF,numlevs);
+color = cool(max(ClusterIDs)+5);
+for i=1:max(ClusterIDs)
+    plotmat = mean(CutoutFar(ClusterIDs==i,:)',2);
+    plot(plotmat,'.-','Color',color(i,:));   
+end
+axis tight;
+ylim(ylimits);
+
 ranksC = otsu(ampsC,numlevs);
 ranksF = otsu(ampsF,numlevs);
 for i=1:numlevs-1
     subplot(numlevs-1,2,2*i)
-    plot(CutoutNear(ranksC==i+1,:)','.-');
+    hold on;
+    plot((CutoutNear(ranksC==i+1,:))','.-');
+    p=plot(mean(CutoutNear(ranksC==i+1,:))','--k','LineWidth',4);
+    uistack(p,'top');
     ylim([0,max(ampsC)]);
-    xlim([0,100]);
+%     xlim([0,100]);
     if i==1
         title('Peaks near Bursts')
         set(gca,'XTick',[]);
@@ -205,9 +234,12 @@ for i=1:numlevs-1
     set(gca,'FontSize',18);
     
     subplot(numlevs-1,2,2*i-1)
-    plot(CutoutFar(ranksF==i+1,:)','.-');
+    hold on
+    plot((CutoutFar(ranksF==i+1,:))','.-');
+    p = plot(mean(CutoutFar(ranksF==i+1,:))','--k','LineWidth',4);
+    uistack(p,'top');
     ylim([0,max(ampsC)]);
-    xlim([0,100]);
+%     xlim([0,100]);
     if i==1
         title('Peaks Far from Bursts')
         set(gca,'XTick',[]);
@@ -220,73 +252,37 @@ end
 
 %% Amplitude versus offset
 close all; clear bins;
+AvDcultNum(AvD(:,1)>25,:)=[];
 AvD(AvD(:,1)>25,:)=[];
-[~,bins]=hist3(AvD,[100,100]);
-ylow  = 0;
-yhigh = bins{2}(end);
-xlow  = 0;
-xhigh = bins{1}(end);
+% AvD(AvD(:,2)<1,:)=[];
 figure('Color','white');
-subplot = @(m,n,p) subtightplot (m, n, p, [0.005 0.005], [0.05 0.05], [0.05 0.05]);
+% subplot = @(m,n,p) subtightplot (m, n, p, [0.005 0.005], [0.05 0.05], [0.05 0.05]);
+[nm,~] = PlotColWiseNormHist(AvD(:,1),AvD(:,2),[100,100],'both');
+% for i=1:8
+%     [normhist(:,:,i),bins] = PlotColWiseNormHist(AvD(AvDcultNum==i,1),AvD(AvDcultNum==i,2),[100,100],'both');
+%     close all;
+% end
+% xo = repmat(bins{1}',1,size(normhist,2));
+% yo = repmat(bins{2},size(normhist,1),1);
+% surface(xo,yo,nanmean(normhist,3));
+% az=0;%35
+% el=90;%32
+% view([az,el]);
+% set(get(gca,'child'),'FaceColor','flat','CDataMode','auto');
+% set(gca,'YTick',[],'TickDir','out','FontSize',9);
+% colormap([[0,0,0];parula(numel(unique(normhist(:))))]);
+set(findall(gcf,'-property','FontSize'),'FontSize',18);
 
-subplot(6,6,2:6)
-hist(AvD(:,1),100);
-xlim([xlow,xhigh]);
-view([0,90]);
-axis off;
-set(gca,'YTick',[],'XTick',[]);
-set(allchild(gca),'FaceColor',[0 0 0]);
-set(gca,'FontSize',9);
 
-subplot(6,6,[7,13,19,25,31])
-hist(AvD(:,2),100);
-axis tight;
-xlim([ylow,yhigh]);
-set(gca,'YTick',[],'YDir','reverse','XDir','reverse','TickDir','out','TickLength',[0.005,0.005]);
-box off;
-view([90,90]);
-set(allchild(gca),'FaceColor',[0 0 0]);
-set(gca,'FontSize',9,'ycolor','w');
-
-subplot(6,6,[8:12,14:18,20:24,26:30,32:36])
-% hist3(AvD,[100,100]);
-[temphist,bins]=hist3(AvD,[100,100]);
-normhist = temphist/trapz(bins{2},trapz(bins{1},temphist));
-xo = repmat(bins{1}',1,size(normhist,2));
-yo = repmat(bins{2},size(normhist,1),1);
-surface(xo,yo,normhist);
-az=0;%35
-el=90;%32
-view([az,el]);
-set(gca,'YTick',[]);
-set(get(gca,'child'),'FaceColor','flat','CDataMode','auto');
-xlim([xlow,xhigh]);
-ylim([ylow,yhigh]);
-CData = get(get(gca,'child'),'CData')+1;
-CData(CData<=0) = NaN;
-CData(CData==Inf) = NaN;
-% Find min/max
-minC = min(CData(:));
-maxC = max(CData(:));
-% Convert data to log space
-CData = log10(CData);
-% Normalize the log scaled CData to have the same range as the ZData so
-% that the colorbar scale will be correct
-CData = minC + (maxC-minC)*(CData-log10(minC))/(log10(maxC/minC));
-% Now set the CData of the surface to the normalized CData
-set(get(gca,'child'),'CData',CData)
-set(get(gca,'child'),'CDataMapping','scaled')
-grid off;
-set(gca,'TickDir','out','FontSize',9);
-hCbar = colorbar(gca);
-myscale = [nanmin(CData(:)),10^1,10^1.5,10^2,nanmax(CData(:))];
-caxis([myscale(1),myscale(end)])
-% set(hCbar,'YTick',myscale);
-% set(hCbar,'YTickLabel',log10(myscale),'TickDir','out','FontSize',9);
-ylabel(hCbar,'incidence [counts]');
+%--Difference over expected value---%
+figure('Color','white');
+optM = [100,100];
+PlotHistOverExpected(AvD,optM);
+xlabel('time from burst start [s]');
+ylabel('probability over expected');
+set(findall(gcf,'-property','FontSize'),'FontSize',18);
 
 %% Amp vs Num bursts
-close all;
 c=1;
 win = 10;
 for i=1:size(DataSet,1)
@@ -296,14 +292,14 @@ for i=1:size(DataSet,1)
     else
         bs = DataSet{i}.bs./12000;
         be = DataSet{i}.be./12000;
-    end 
+    end
     peakTimes{i} = cellfun(@(x) DataSet{i}.dfTime(x),peakIndex{i},'UniformOutput',false);
     for j=1:size(peakTimes{i},2)
         trz  = zscore(DataSet{i}.dfTraces(:,j)-min(DataSet{i}.dfTraces(:,j)));
         for k=1:numel(peakIndex{i}{j})
-        AmpVnumB(c,1) = trz(peakIndex{i}{j}(k)); %peak amplitude
-        AmpVnumB(c,2) = sum((bs>=(peakTimes{i}{j}(k)-win)) & (bs<=(peakTimes{i}{j}(k)+win))); %number of bursts within window
-        c=c+1;
+            AmpVnumB(c,1) = trz(peakIndex{i}{j}(k)); %peak amplitude
+            AmpVnumB(c,2) = sum((bs>=(peakTimes{i}{j}(k)-win)) & (bs<=(peakTimes{i}{j}(k)+win))); %number of bursts within window
+            c=c+1;
         end
     end
 end

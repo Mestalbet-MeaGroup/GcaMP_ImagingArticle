@@ -76,7 +76,7 @@ end
 
 far = zeros(size(distances));
 % far = abs(distances)<=3;
-far = (distances<=3)&(distances>0);
+far = (distances<=5)&(distances>0);
 
 numNoB = sum(sum(far,2)==0)/numel(peaks);
 
